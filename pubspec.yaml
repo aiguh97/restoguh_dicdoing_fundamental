@@ -1,0 +1,46 @@
+name: restoguh_dicoding_fundamentl
+description: "Submission 1 dicoding restaurant app yang bernama restoguh restarant owned by teguh"
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.8.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_rating_bar: ^4.0.1
+  flutter_svg: ^2.2.1
+  http: ^1.5.0
+  intl: ^0.20.2
+  provider: ^6.1.5+1
+  shared_preferences: ^2.5.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/svg/
+    - assets/images/
+
+  fonts:
+    - family: Geometr415
+      fonts:
+        - asset: assets/fonts/geometri.ttf
+
+    - family: GillSansMT
+      fonts:
+        - asset: assets/fonts/GillSansMT.ttf
+
+    - family: SFUIDisplay
+      fonts:
+        - asset: assets/fonts/SfUiDisplay-Thin.otf
+          weight: 100
+        - asset: assets/fonts/SfUiDisplay-Regular.otf
+          weight: 400
+        - asset: assets/fonts/SfUiDisplay-Bold.otf
+          weight: 700   
