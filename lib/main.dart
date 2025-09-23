@@ -7,7 +7,6 @@ import 'package:restoguh_dicoding_fundamentl/providers/theme_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/onboarding_screen.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/menu_screen.dart';
 import 'package:restoguh_dicoding_fundamentl/style/theme/restoguh_theme.dart';
-import 'package:restoguh_dicoding_fundamentl/style/theme/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
