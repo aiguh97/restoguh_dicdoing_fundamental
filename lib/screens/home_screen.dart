@@ -1,4 +1,3 @@
-// lib/screens/home/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restoguh_dicoding_fundamentl/models/restaurant.dart';
@@ -7,6 +6,7 @@ import 'package:restoguh_dicoding_fundamentl/screens/settings/setting_screen.dar
 import '../../providers/home_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../widgets/restaurant_card.dart';
+import '../../style/typography/typography_text_styles.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
+  // ignore: unused_field
   late HomeProvider _homeProvider;
 
   @override
@@ -48,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return AppBar(
       automaticallyImplyLeading: false,
       toolbarHeight: homeProvider.isSearching ? 72 : 54,
-
       title: homeProvider.isSearching
           ? TextField(
               controller: _searchController,
@@ -56,63 +56,37 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: InputDecoration(
                 hintText: 'Cari restoran...',
                 border: InputBorder.none,
-                hintStyle: TextStyle(
-                  fontFamily: 'Geometr415',
-                  color: Theme.of(context).hintColor.withOpacity(0.7),
+                hintStyle: RestoguhTextStyles.bodyLargeRegular.copyWith(
+                  color: Colors.white,
                 ),
-                // suffixIcon: _searchController.text.isNotEmpty
-                //     ? IconButton(
-                //         icon: const Icon(Icons.clear),
-                //         onPressed: () {
-                //           _searchController.clear();
-                //           homeProvider.searchRestaurantsRealtime('');
-                //         },
-                //       )
-                //     : null,
               ),
-              style: TextStyle(
-                fontFamily: 'Geometr415',
-                color: Theme.of(context).textTheme.bodyLarge?.color,
+              style: RestoguhTextStyles.bodyLargeRegular.copyWith(
+                color: Colors.white,
               ),
               textInputAction: TextInputAction.search,
               onChanged: homeProvider.searchRestaurantsRealtime,
               onSubmitted: (value) {
-                // Handle ketika user menekan enter/search
                 if (value.trim().isNotEmpty) {
                   homeProvider.searchRestaurantsRealtime(value);
                 }
               },
             )
-          : const Text(
-              'Restoguh',
-              style: TextStyle(
-                fontFamily: 'Geometr415',
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          : Text('Restoguh', style: RestoguhTextStyles.displayLarge),
       actions: [
-        if (homeProvider.isSearching)
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
+        IconButton(
+          icon: Icon(homeProvider.isSearching ? Icons.close : Icons.search),
+          onPressed: () {
+            if (homeProvider.isSearching) {
               _searchController.clear();
               homeProvider.stopSearch();
-            },
-          )
-        else
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
+            } else {
               homeProvider.startSearch();
-              // Focus ke search field setelah dibuka
               Future.delayed(const Duration(milliseconds: 100), () {
                 FocusScope.of(context).requestFocus(FocusNode());
-                Future.delayed(const Duration(milliseconds: 50), () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                });
               });
-            },
-          ),
+            }
+          },
+        ),
       ],
     );
   }
@@ -148,23 +122,19 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Center(
-              child: Icon(
-                homeProvider.query.isEmpty
-                    ? Icons.restaurant
-                    : Icons.search_off,
-                size: 64,
-                color: Colors.grey.shade400,
-              ),
+            Icon(
+              homeProvider.query.isEmpty ? Icons.restaurant : Icons.search_off,
+              size: 64,
+              color: Colors.grey.shade400,
             ),
             const SizedBox(height: 16),
             Text(
               homeProvider.query.isEmpty
                   ? 'Tidak ada restoran'
                   : 'Hasil pencarian tidak ditemukan',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(color: Colors.grey.shade600),
+              style: RestoguhTextStyles.titleLarge.copyWith(
+                color: Colors.grey.shade600,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -172,9 +142,9 @@ class _HomeScreenState extends State<HomeScreen> {
               homeProvider.query.isEmpty
                   ? 'Silakan refresh untuk memuat data'
                   : 'Coba dengan kata kunci lain',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade500),
+              style: RestoguhTextStyles.bodyLargeRegular.copyWith(
+                color: Colors.grey.shade500,
+              ),
               textAlign: TextAlign.center,
             ),
             if (homeProvider.query.isNotEmpty) ...[
@@ -225,7 +195,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Drawer(
       child: Column(
         children: [
-          // Header Drawer
           Container(
             width: double.infinity,
             height: 160,
@@ -243,17 +212,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Restoguh',
-                  style: TextStyle(
+                  style: RestoguhTextStyles.titleLarge.copyWith(
                     color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   'Temukan restoran terbaik',
-                  style: TextStyle(
+                  style: RestoguhTextStyles.bodyLargeRegular.copyWith(
                     color: Colors.white.withOpacity(0.8),
                     fontSize: 12,
                   ),
@@ -261,22 +228,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-
-          // Menu Drawer
           Expanded(
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
-                // Home Menu
                 ListTile(
                   leading: const Icon(Icons.home),
                   title: const Text('Home'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
+                  onTap: () => Navigator.pop(context),
                 ),
-
-                // Settings Menu
                 ListTile(
                   leading: const Icon(Icons.settings),
                   title: const Text('Pengaturan'),
@@ -288,8 +248,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                 ),
-
-                // Theme Toggle
                 ListTile(
                   leading: Icon(
                     themeProvider.isDarkMode
@@ -304,10 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onChanged: themeProvider.toggleTheme,
                   ),
                 ),
-
                 const Divider(),
-
-                // About
                 ListTile(
                   leading: const Icon(Icons.info),
                   title: const Text('Tentang Aplikasi'),
@@ -316,8 +271,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     _showAboutDialog(context);
                   },
                 ),
-
-                // Refresh Data
                 ListTile(
                   leading: const Icon(Icons.refresh),
                   title: const Text('Refresh Data'),
@@ -344,9 +297,11 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text(
+        title: Text(
           'Tentang Restoguh',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: RestoguhTextStyles.titleLarge.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: const SingleChildScrollView(
           child: Text(

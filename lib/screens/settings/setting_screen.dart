@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/theme_provider.dart';
+import 'package:restoguh_dicoding_fundamentl/style/typography/typography_text_styles.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});
@@ -12,9 +13,9 @@ class SettingScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text(
+        title: Text(
           "Pengaturan",
-          style: TextStyle(fontFamily: 'Geometr415'),
+          style: RestoguhTextStyles.displayLarge.copyWith(fontSize: 20),
         ),
       ),
       body: ListView(
@@ -29,10 +30,9 @@ class SettingScreen extends StatelessWidget {
                 children: [
                   Text(
                     "TAMPILAN",
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    style: RestoguhTextStyles.labelLarge.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'Geometr415',
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -46,24 +46,20 @@ class SettingScreen extends StatelessWidget {
                           children: [
                             Text(
                               "Mode Gelap",
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontFamily: 'Geometr415'),
+                              style: RestoguhTextStyles.titleMedium,
                             ),
                             Text(
                               themeProvider.isDarkMode
                                   ? "Diaktifkan"
                                   : "Dinonaktifkan",
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(fontFamily: 'GillSansMT'),
+                              style: RestoguhTextStyles.bodyLargeRegular,
                             ),
                           ],
                         ),
                       ),
                       Switch(
                         value: themeProvider.isDarkMode,
-                        onChanged: (value) {
-                          themeProvider.toggleTheme(value);
-                        },
+                        onChanged: themeProvider.toggleTheme,
                       ),
                     ],
                   ),
@@ -82,10 +78,9 @@ class SettingScreen extends StatelessWidget {
                 children: [
                   Text(
                     "TENTANG APLIKASI",
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    style: RestoguhTextStyles.labelLarge.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'Geometr415',
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -121,7 +116,7 @@ class SettingScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 20),
+          Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -129,12 +124,11 @@ class SettingScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  style: RestoguhTextStyles.bodyLargeRegular.copyWith(
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'Geometr415',
                   ),
                 ),
-                Text(value, style: const TextStyle(fontFamily: 'GillSansMT')),
+                Text(value, style: RestoguhTextStyles.bodyLargeRegular),
               ],
             ),
           ),

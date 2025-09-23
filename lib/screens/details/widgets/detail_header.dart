@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:restoguh_dicoding_fundamentl/theme/theme.dart';
+import 'package:restoguh_dicoding_fundamentl/style/colors/restoguh_colors.dart';
 import 'package:restoguh_dicoding_fundamentl/widgets/text/ReadMoreInline.dart';
 import '../../../models/restaurant_detail.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -30,24 +30,26 @@ class DetailHeader extends StatelessWidget {
               width: 20,
               height: 20,
               colorFilter: ColorFilter.mode(
-                Theme.of(
-                  context,
-                ).primaryColor, // pakai primary color dari theme
+                Theme.of(context).primaryColor,
                 BlendMode.srcIn,
               ),
             ),
             const SizedBox(width: 6),
-            Text(r.address, style: TextStyle(fontFamily: 'Geometr415')),
+            Text(r.address, style: const TextStyle(fontFamily: 'Geometr415')),
           ],
         ),
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(Icons.star, size: 18, color: Colors.amber),
+            Icon(
+              Icons.star,
+              size: 18,
+              color: RestoguhColors.amber.primaryColor, // pakai RestoguhColors
+            ),
             const SizedBox(width: 6),
             Text(
               r.rating.toString(),
-              style: TextStyle(fontFamily: 'Geometr415'),
+              style: const TextStyle(fontFamily: 'Geometr415'),
             ),
             const SizedBox(width: 6),
             InkWell(
@@ -63,19 +65,17 @@ class DetailHeader extends StatelessWidget {
             ),
           ],
         ),
-
         const SizedBox(height: 12),
-        // Text(r.description),
         ReadMoreInline(
-          text: r.description ?? "",
+          text: r.description,
           trimLines: 4,
           style: const TextStyle(
-            color: Color.fromARGB(255, 61, 61, 61),
+            color: Color.fromARGB(255, 0, 0, 0),
             letterSpacing: 1.45,
             fontFamily: 'SFUIDisplay',
           ),
-          moreStyle: const TextStyle(
-            color: Color.fromARGB(255, 66, 189, 74),
+          moreStyle: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w700,
           ),
         ),

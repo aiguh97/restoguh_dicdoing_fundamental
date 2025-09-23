@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:restoguh_dicoding_fundamentl/theme/theme.dart';
-// import 'package:travel_submission_beginner_flutter_dicoding/themes/constant.dart';
+import 'package:restoguh_dicoding_fundamentl/style/colors/restoguh_colors.dart';
+import 'package:restoguh_dicoding_fundamentl/style/typography/typography_text_styles.dart';
 
 class ReadMoreInline extends StatefulWidget {
   final String text;
@@ -40,12 +40,11 @@ class _ReadMoreInlineState extends State<ReadMoreInline> {
 
   @override
   Widget build(BuildContext context) {
-    final defaultTextStyle =
-        widget.style ??
-        const TextStyle(
-          fontSize: 12,
-          color: Colors.grey,
-          fontFamily: 'SFUIDisplay',
+    final defaultTextStyle = widget.style ?? RestoguhTextStyles.readMore;
+    final moreTextStyle =
+        widget.moreStyle ??
+        RestoguhTextStyles.readMoreMore.copyWith(
+          color: RestoguhColors.blue.primaryColor,
         );
 
     if (isExpanded) {
@@ -56,12 +55,7 @@ class _ReadMoreInlineState extends State<ReadMoreInline> {
           children: [
             TextSpan(
               text: ' Read Less',
-              style:
-                  widget.moreStyle ??
-                  TextStyle(
-                    color: colorPrimary, // konsisten dengan constant.dart
-                    fontWeight: FontWeight.w500,
-                  ),
+              style: moreTextStyle,
               recognizer: _toggleRecognizer,
             ),
           ],
@@ -69,21 +63,21 @@ class _ReadMoreInlineState extends State<ReadMoreInline> {
       );
     }
 
-    // Collapsed state
     return LayoutBuilder(
       builder: (context, constraints) {
         final span = TextSpan(text: widget.text, style: defaultTextStyle);
         final tp = TextPainter(
           text: span,
           maxLines: widget.trimLines,
-          textDirection: Directionality.of(context),
+          textDirection: TextDirection.ltr,
+          ellipsis: '…',
         )..layout(maxWidth: constraints.maxWidth);
 
         if (!tp.didExceedMaxLines) {
           return Text(widget.text, style: defaultTextStyle);
         }
 
-        // Potong teks agar muat + tambahkan "Read More"
+        // Cari posisi pemotongan teks agar muat
         final cutoff = tp.getPositionForOffset(
           Offset(tp.width, tp.preferredLineHeight * widget.trimLines),
         );
@@ -96,12 +90,7 @@ class _ReadMoreInlineState extends State<ReadMoreInline> {
             children: [
               TextSpan(
                 text: 'Read More',
-                style:
-                    widget.moreStyle ??
-                    TextStyle(
-                      color: colorPrimary, // konsisten dengan constant.dart
-                      fontWeight: FontWeight.w500,
-                    ),
+                style: moreTextStyle,
                 recognizer: _toggleRecognizer,
               ),
             ],

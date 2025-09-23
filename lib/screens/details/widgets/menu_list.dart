@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../models/restaurant_detail.dart';
 
 class MenuList extends StatelessWidget {
   final String title;
   final List<dynamic> items;
-  final String imagePath; // ✅ path gambar dummy
+  final String imagePath; // path gambar dummy
 
   const MenuList({
     super.key,
@@ -15,35 +14,43 @@ class MenuList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return const SizedBox(); // Tidak menampilkan apa-apa jika kosong
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontFamily: 'GillSansMT',
-            fontSize: 18,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
+            fontFamily: 'GillSansMT',
           ),
         ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 120,
-          child: ListView(
+          height: 140,
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            children: items.map((item) => _menuCard(item.name)).toList(),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return _menuCard(context, item.name);
+            },
           ),
         ),
       ],
     );
   }
 
-  Widget _menuCard(String title) {
+  Widget _menuCard(BuildContext context, String name) {
     return Container(
       width: 140,
       margin: const EdgeInsets.only(right: 12),
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 2,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
@@ -52,7 +59,7 @@ class MenuList extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: Image.asset(
-                    imagePath, // ✅ gambar sesuai parameter
+                    imagePath,
                     fit: BoxFit.contain,
                     width: 60,
                     height: 60,
@@ -60,7 +67,14 @@ class MenuList extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(
+                name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
             ],
           ),
         ),

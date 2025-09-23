@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/theme_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/home_screen.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/settings/setting_screen.dart';
+import 'package:restoguh_dicoding_fundamentl/style/typography/typography_text_styles.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -24,19 +25,15 @@ class _MenuScreenState extends State<MenuScreen> {
       resizeToAvoidBottomInset: false,
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // tetap fixed
+        type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
-        selectedItemColor: Theme.of(context).colorScheme.primary, // warna aktif
-        unselectedItemColor: Colors.grey, // warna tidak aktif
-        selectedLabelStyle: TextStyle(
-          fontFamily: 'Geometr415',
-          fontWeight: FontWeight.bold,
-          color: Colors.blue,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Colors.grey,
+        selectedLabelStyle: RestoguhTextStyles.bodyLargeBold.copyWith(
+          color: Theme.of(context).colorScheme.primary,
         ),
-        unselectedLabelStyle: TextStyle(
-          fontFamily: 'Geometr415',
-          fontWeight: FontWeight.normal,
+        unselectedLabelStyle: RestoguhTextStyles.bodyLargeRegular.copyWith(
           color: Colors.grey,
         ),
         showUnselectedLabels: true,
@@ -48,7 +45,6 @@ class _MenuScreenState extends State<MenuScreen> {
           ),
         ],
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           themeProvider.toggleTheme(!themeProvider.isDarkMode);

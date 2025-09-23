@@ -6,7 +6,8 @@ import 'package:restoguh_dicoding_fundamentl/providers/review_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/theme_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/onboarding_screen.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/menu_screen.dart';
-import 'package:restoguh_dicoding_fundamentl/theme/theme.dart';
+import 'package:restoguh_dicoding_fundamentl/style/theme/restoguh_theme.dart';
+import 'package:restoguh_dicoding_fundamentl/style/theme/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -43,8 +44,8 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'Restaurant App',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
+          theme: RestoguhTheme.lightTheme,
+          darkTheme: RestoguhTheme.darkTheme,
           themeMode: themeProvider.isDarkMode
               ? ThemeMode.dark
               : ThemeMode.light,

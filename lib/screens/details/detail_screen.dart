@@ -78,8 +78,8 @@ class _DetailScreenState extends State<DetailScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddReviewPopup,
-        child: const Icon(Icons.add_comment),
         backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Icons.add_comment),
       ),
       body: Consumer<ReviewProvider>(
         builder: (context, provider, _) {
