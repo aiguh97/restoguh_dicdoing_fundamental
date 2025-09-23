@@ -40,7 +40,10 @@ class RestaurantCard extends StatelessWidget {
         ),
         title: Text(
           restaurant.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontFamily: 'Geometr415',
+            fontWeight: FontWeight.bold,
+          ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +63,10 @@ class RestaurantCard extends StatelessWidget {
                 ),
 
                 const SizedBox(width: 4),
-                Text(restaurant.city),
+                Text(
+                  restaurant.city,
+                  style: TextStyle(fontFamily: 'GillSansMT'),
+                ),
               ],
             ),
             const SizedBox(height: 4),
@@ -68,7 +74,10 @@ class RestaurantCard extends StatelessWidget {
               children: [
                 const Icon(Icons.star, size: 16, color: Colors.amber),
                 const SizedBox(width: 4),
-                Text(restaurant.rating.toString()),
+                Text(
+                  restaurant.rating.toString(),
+                  style: TextStyle(fontFamily: 'GillSansMT'),
+                ),
               ],
             ),
           ],

@@ -29,6 +29,16 @@ class _MenuScreenState extends State<MenuScreen> {
         onTap: (index) => setState(() => _currentIndex = index),
         selectedItemColor: Theme.of(context).colorScheme.primary, // warna aktif
         unselectedItemColor: Colors.grey, // warna tidak aktif
+        selectedLabelStyle: TextStyle(
+          fontFamily: 'Geometr415',
+          fontWeight: FontWeight.bold,
+          color: Colors.blue,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontFamily: 'Geometr415',
+          fontWeight: FontWeight.normal,
+          color: Colors.grey,
+        ),
         showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),

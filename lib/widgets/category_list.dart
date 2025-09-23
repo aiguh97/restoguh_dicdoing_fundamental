@@ -14,7 +14,11 @@ class CategoryList extends StatelessWidget {
       children: [
         const Text(
           "Kategori :",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(
+            fontFamily: 'GillSansMT',
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -22,14 +26,22 @@ class CategoryList extends StatelessWidget {
           runSpacing: 8,
           children: categories.map((c) {
             return Chip(
-              label: Text(c.name),
-              backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
-              labelStyle: TextStyle(
-                color: Theme.of(context).primaryColor,
-                fontWeight: FontWeight.w500,
+              label: Text(
+                c.name,
+                style: TextStyle(
+                  fontFamily: 'Geometr415',
+                  color: Colors
+                      .white, // teks putih supaya terlihat di background hijau
+                  fontWeight: FontWeight.w500,
+                ),
               ),
+              backgroundColor: Theme.of(context).primaryColor,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: Theme.of(context).primaryColorDark,
+                  width: 1,
+                ),
               ),
             );
           }).toList(),

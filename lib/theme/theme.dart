@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
+  static const Color primaryLight = Color(0xFF4CAF50); // hijau standar
+  static const Color primaryDark = Color(0xFF1F5F23); // hijau tua
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      primaryColor: const Color(0xFF4CAF50),
+      primaryColor: primaryLight,
       colorScheme: ColorScheme.light(
-        primary: const Color(0xFF4CAF50),
-        secondary: const Color(0xFFFF9800),
+        primary: primaryLight,
+        onPrimary: Colors.white, // teks di atas primary
+        secondary: Color(0xFFFF9800),
         background: Colors.white,
         surface: Colors.white,
         onBackground: Colors.black87,
@@ -16,16 +20,11 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: Colors.white,
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF4CAF50),
+        backgroundColor: primaryLight,
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
       ),
-      // cardTheme: CardTheme(
-      //   elevation: 2,
-      //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      //   color: Colors.white,
-      // ),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontSize: 28,
@@ -57,14 +56,23 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 2),
+          borderSide: BorderSide(color: primaryLight, width: 2),
         ),
         filled: true,
         fillColor: Colors.grey.shade50,
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: const Color(0xFF4CAF50),
+        backgroundColor: primaryLight,
         foregroundColor: Colors.white,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: primaryDark, // default hijau tua
+        labelStyle: const TextStyle(color: Colors.white),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: primaryDark),
+        ),
       ),
     );
   }
@@ -73,12 +81,13 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      primaryColor: const Color(0xFF4CAF50),
-      colorScheme: ColorScheme.dark(
-        primary: const Color(0xFF4CAF50),
-        secondary: const Color(0xFFFF9800),
-        background: const Color(0xFF121212),
-        surface: const Color(0xFF1E1E1E),
+      primaryColor: primaryDark,
+      colorScheme: const ColorScheme.dark(
+        primary: primaryDark,
+        onPrimary: Colors.white,
+        secondary: Color(0xFFFF9800),
+        background: Color(0xFF121212),
+        surface: Color(0xFF1E1E1E),
         onBackground: Colors.white,
         onSurface: Colors.white,
       ),
@@ -89,11 +98,6 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
       ),
-      // cardTheme: CardTheme(
-      //   elevation: 4,
-      //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      //   color: const Color(0xFF1E1E1E),
-      // ),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontSize: 28,
@@ -125,7 +129,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 2),
+          borderSide: BorderSide(color: primaryDark, width: 2),
         ),
         filled: true,
         fillColor: const Color(0xFF1E1E1E),
@@ -133,10 +137,19 @@ class AppTheme {
         labelStyle: const TextStyle(color: Colors.white),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: const Color(0xFF4CAF50),
+        backgroundColor: primaryDark,
         foregroundColor: Colors.white,
       ),
       dividerColor: Colors.grey.shade700,
+      chipTheme: ChipThemeData(
+        backgroundColor: primaryDark,
+        labelStyle: const TextStyle(color: Colors.white),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: primaryDark),
+        ),
+      ),
     );
   }
 }

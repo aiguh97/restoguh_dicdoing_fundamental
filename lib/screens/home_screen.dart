@@ -77,15 +77,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: InputDecoration(
                   hintText: 'Cari restoran...',
                   border: InputBorder.none,
-                  hintStyle: TextStyle(color: Theme.of(context).hintColor),
+                  hintStyle: TextStyle(
+                    fontFamily: 'Geometr415',
+                    color: Theme.of(context).hintColor,
+                  ),
                 ),
                 style: TextStyle(
+                  fontFamily: 'Geometr415',
                   color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
                 textInputAction: TextInputAction.search,
                 onSubmitted: _onSearch,
               )
-            : const Text('Restoguh'),
+            : const Text(
+                'Restoguh',
+                style: TextStyle(fontFamily: 'Geometr415'),
+              ),
         actions: [
           // Theme toggle button
           _isSearching
