@@ -1,26 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../services/api_service.dart';
-
-void showAddReviewDialog(BuildContext context, String restaurantId) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) {
-      return AddReviewPopup(restaurantId: restaurantId);
-    },
-  );
-}
+import 'package:provider/provider.dart';
+import '../../../providers/review_provider.dart';
 
 class AddReviewPopup extends StatefulWidget {
   final String restaurantId;
-  final VoidCallback? onReviewAdded;
-
-  const AddReviewPopup({
-    super.key,
-    required this.restaurantId,
-    this.onReviewAdded,
-  });
+  const AddReviewPopup({super.key, required this.restaurantId});
 
   @override
   State<AddReviewPopup> createState() => _AddReviewPopupState();
@@ -30,59 +14,11 @@ class _AddReviewPopupState extends State<AddReviewPopup> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _reviewController = TextEditingController();
-  bool _isSubmitting = false;
-
-  Future<void> _submitReview() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() {
-      _isSubmitting = true;
-    });
-
-    try {
-      final ok = await ApiService.postReview(
-        widget.restaurantId,
-        _nameController.text.trim(),
-        _reviewController.text.trim(),
-      );
-
-      if (ok) {
-        // Tutup popup dan panggil callback refresh
-        if (mounted) {
-          Navigator.pop(context);
-          widget.onReviewAdded?.call();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Ulasan berhasil ditambahkan!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _reviewController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ReviewProvider>(context);
+
     return Container(
       margin: const EdgeInsets.all(16),
       child: DraggableScrollableSheet(
@@ -100,7 +36,6 @@ class _AddReviewPopupState extends State<AddReviewPopup> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // Drag handle
                   Container(
                     width: 40,
                     height: 4,
@@ -110,8 +45,6 @@ class _AddReviewPopupState extends State<AddReviewPopup> {
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-
-                  // Header
                   Row(
                     children: [
                       Text(
@@ -127,10 +60,7 @@ class _AddReviewPopupState extends State<AddReviewPopup> {
                       ),
                     ],
                   ),
-
                   const Divider(),
-
-                  // Form
                   Expanded(
                     child: Form(
                       key: _formKey,
@@ -138,7 +68,6 @@ class _AddReviewPopupState extends State<AddReviewPopup> {
                         controller: controller,
                         children: [
                           const SizedBox(height: 16),
-
                           TextFormField(
                             controller: _nameController,
                             decoration: const InputDecoration(
@@ -146,16 +75,11 @@ class _AddReviewPopupState extends State<AddReviewPopup> {
                               prefixIcon: Icon(Icons.person),
                               border: OutlineInputBorder(),
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Nama harus diisi';
-                              }
-                              return null;
-                            },
+                            validator: (value) => value == null || value.isEmpty
+                                ? 'Nama harus diisi'
+                                : null,
                           ),
-
                           const SizedBox(height: 16),
-
                           TextFormField(
                             controller: _reviewController,
                             decoration: const InputDecoration(
@@ -165,24 +89,45 @@ class _AddReviewPopupState extends State<AddReviewPopup> {
                             ),
                             maxLines: 4,
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
+                              if (value == null || value.isEmpty)
                                 return 'Ulasan harus diisi';
-                              }
-                              if (value.length < 3) {
+                              if (value.length < 3)
                                 return 'Ulasan terlalu pendek';
-                              }
                               return null;
                             },
                           ),
-
                           const SizedBox(height: 24),
-
                           SizedBox(
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: _isSubmitting ? null : _submitReview,
-                              child: _isSubmitting
+                              onPressed: provider.isSubmitting
+                                  ? null
+                                  : () async {
+                                      if (!_formKey.currentState!.validate())
+                                        return;
+
+                                      await provider.submitReview(
+                                        widget.restaurantId,
+                                        _nameController.text.trim(),
+                                        _reviewController.text.trim(),
+                                      );
+
+                                      if (mounted) {
+                                        Navigator.pop(context);
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Ulasan berhasil ditambahkan!',
+                                            ),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      }
+                                    },
+                              child: provider.isSubmitting
                                   ? const SizedBox(
                                       width: 20,
                                       height: 20,
@@ -210,5 +155,12 @@ class _AddReviewPopupState extends State<AddReviewPopup> {
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _reviewController.dispose();
+    super.dispose();
   }
 }

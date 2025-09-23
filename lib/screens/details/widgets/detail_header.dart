@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:restoguh_dicoding_fundamentl/theme/theme.dart';
+import 'package:restoguh_dicoding_fundamentl/widgets/text/ReadMoreInline.dart';
 import '../../../models/restaurant_detail.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -63,7 +65,20 @@ class DetailHeader extends StatelessWidget {
         ),
 
         const SizedBox(height: 12),
-        Text(r.description),
+        // Text(r.description),
+        ReadMoreInline(
+          text: r.description ?? "",
+          trimLines: 4,
+          style: const TextStyle(
+            color: Color.fromARGB(255, 61, 61, 61),
+            letterSpacing: 1.45,
+            fontFamily: 'SFUIDisplay',
+          ),
+          moreStyle: const TextStyle(
+            color: Color.fromARGB(255, 66, 189, 74),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
       ],
     );
   }

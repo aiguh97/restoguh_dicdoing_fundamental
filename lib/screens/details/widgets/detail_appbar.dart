@@ -94,9 +94,7 @@ class DetailAppbar extends StatelessWidget {
                           onTap: () {
                             print("Bookmark tapped!");
                           },
-                          backgroundColor: const Color(
-                            0XFF1B1E28,
-                          ).withOpacity(0.3),
+                          backgroundColor: const Color(0XFF1B1E28),
                           iconColor: Colors.white,
                         ),
                       ],

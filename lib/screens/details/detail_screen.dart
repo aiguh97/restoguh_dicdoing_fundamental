@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/details/widgets/detail_add_review.dart';
-import 'package:restoguh_dicoding_fundamentl/screens/details/widgets/review/review_list.dart';
 import 'package:restoguh_dicoding_fundamentl/widgets/category_list.dart';
-import '../../services/api_service.dart';
 import '../../models/restaurant_detail.dart';
+import '../../providers/review_provider.dart';
 import 'widgets/detail_appbar.dart';
 import 'widgets/detail_header.dart';
 import 'widgets/menu_list.dart';
@@ -17,68 +17,30 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  late Future<RestaurantDetail> _future;
   bool _showAppbarTitle = false;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _reviewsSectionKey = GlobalKey();
-  
-  // Variabel untuk infinite scroll
-  List<CustomerReview> _allReviews = [];
-  List<CustomerReview> _displayedReviews = [];
-  int _currentIndex = 0;
-  final int _reviewsPerLoad = 2;
-  bool _isLoadingMore = false;
-  bool _hasMoreReviews = true;
 
   @override
   void initState() {
     super.initState();
-    _refreshData();
     _setupScrollController();
+    // Fetch restaurant detail when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ReviewProvider>(
+        context,
+        listen: false,
+      ).refreshRestaurantDetail(widget.id);
+    });
   }
 
   void _setupScrollController() {
     _scrollController.addListener(() {
-      // Cek jika sudah mencapai bagian bawah
-      if (_scrollController.position.pixels >= 
-          _scrollController.position.maxScrollExtent - 100) {
-        _loadMoreReviews();
+      if (_scrollController.position.pixels > 120 && !_showAppbarTitle) {
+        setState(() => _showAppbarTitle = true);
+      } else if (_scrollController.position.pixels <= 120 && _showAppbarTitle) {
+        setState(() => _showAppbarTitle = false);
       }
-    });
-  }
-
-  Future<void> _refreshData() async {
-    setState(() {
-      _future = ApiService.fetchRestaurantDetail(widget.id);
-      // Reset infinite scroll state
-      _allReviews = [];
-      _displayedReviews = [];
-      _currentIndex = 0;
-      _isLoadingMore = false;
-      _hasMoreReviews = true;
-    });
-  }
-
-  void _loadMoreReviews() {
-    if (_isLoadingMore || !_hasMoreReviews || _allReviews.isEmpty) return;
-
-    setState(() {
-      _isLoadingMore = true;
-    });
-
-    // Simulasi loading delay (bisa dihapus jika tidak perlu)
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-
-      final nextIndex = _currentIndex + _reviewsPerLoad;
-      final endIndex = nextIndex.clamp(0, _allReviews.length);
-      
-      setState(() {
-        _displayedReviews = _allReviews.sublist(0, endIndex);
-        _currentIndex = endIndex;
-        _isLoadingMore = false;
-        _hasMoreReviews = endIndex < _allReviews.length;
-      });
     });
   }
 
@@ -100,10 +62,7 @@ class _DetailScreenState extends State<DetailScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return AddReviewPopup(
-          restaurantId: widget.id,
-          onReviewAdded: _refreshData,
-        );
+        return AddReviewPopup(restaurantId: widget.id);
       },
     );
   }
@@ -122,41 +81,17 @@ class _DetailScreenState extends State<DetailScreen> {
         child: const Icon(Icons.add_comment),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
-      body: FutureBuilder<RestaurantDetail>(
-        future: _future,
-        builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
+      body: Consumer<ReviewProvider>(
+        builder: (context, provider, _) {
+          final r = provider.restaurantDetail;
+
+          if (r == null) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snap.hasError) {
-            return Center(child: Text('Error: ${snap.error}'));
-          } else if (!snap.hasData) {
-            return const Center(child: Text('No data'));
           }
 
-          final r = snap.data!;
-          
-          // Inisialisasi reviews untuk infinite scroll
-          if (_allReviews.isEmpty && r.customerReviews.isNotEmpty) {
-            _allReviews = _sortReviewsByDateDescending(r.customerReviews);
-            _displayedReviews = _allReviews.sublist(
-              0, 
-              _reviewsPerLoad.clamp(0, _allReviews.length)
-            );
-            _currentIndex = _displayedReviews.length;
-            _hasMoreReviews = _currentIndex < _allReviews.length;
-          }
-
+          final allReviews = r.customerReviews;
           return NotificationListener<ScrollNotification>(
-            onNotification: (scroll) {
-              if (scroll.metrics.axis == Axis.vertical) {
-                if (scroll.metrics.pixels > 120 && !_showAppbarTitle) {
-                  setState(() => _showAppbarTitle = true);
-                } else if (scroll.metrics.pixels <= 120 && _showAppbarTitle) {
-                  setState(() => _showAppbarTitle = false);
-                }
-              }
-              return false;
-            },
+            onNotification: (_) => false,
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
@@ -167,10 +102,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        DetailHeader(
-                          r: r,
-                          onShowReviews: _scrollToReviews,
-                        ),
+                        DetailHeader(r: r, onShowReviews: _scrollToReviews),
                         const SizedBox(height: 16),
                         CategoryList(categories: r.categories),
                         const SizedBox(height: 16),
@@ -186,38 +118,11 @@ class _DetailScreenState extends State<DetailScreen> {
                           imagePath: "assets/images/minuman.png",
                         ),
                         const SizedBox(height: 16),
-                        // ✅ REVIEWS SECTION DENGAN INFINITE SCROLL
-                        _buildReviewsSection(),
+                        _buildReviewsSection(allReviews),
                       ],
                     ),
                   ),
                 ),
-                // Loading indicator untuk infinite scroll
-                if (_isLoadingMore)
-                  const SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                  ),
-                // Indicator bahwa semua data sudah dimuat
-                if (!_hasMoreReviews && _allReviews.isNotEmpty)
-                  const SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Center(
-                        child: Text(
-                          'Semua ulasan telah dimuat',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
               ],
             ),
           );
@@ -226,20 +131,21 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  Widget _buildReviewsSection() {
+  Widget _buildReviewsSection(List<CustomerReview> reviews) {
+    final sortedReviews = _sortReviewsByDateDescending(reviews);
     return KeyedSubtree(
       key: _reviewsSectionKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header dengan button tambah review
+          // Header
           Row(
             children: [
               Text(
                 'Ulasan Pelanggan',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: 8),
               Container(
@@ -249,7 +155,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${_allReviews.length} ulasan',
+                  '${sortedReviews.length} ulasan',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
@@ -260,100 +166,44 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           const SizedBox(height: 16),
 
-          // List Reviews dengan infinite scroll
-          if (_displayedReviews.isEmpty)
+          if (sortedReviews.isEmpty)
             _buildEmptyReviews()
           else
             Column(
-              children: [
-                ..._displayedReviews.map((review) => _buildReviewItem(review)),
-              ],
+              children: sortedReviews
+                  .map((review) => _buildReviewItem(review))
+                  .toList(),
             ),
         ],
       ),
     );
   }
 
-  // ✅ METHOD UNTUK SORTING REVIEWS BERDASARKAN TANGGAL (TERBARU PERTAMA)
-  List<CustomerReview> _sortReviewsByDateDescending(
-    List<CustomerReview> reviews,
-  ) {
-    final sorted = List<CustomerReview>.from(reviews);
-
-    sorted.sort((a, b) {
-      try {
-        final dateA = _parseReviewDate(a.date);
-        final dateB = _parseReviewDate(b.date);
-        return dateB.compareTo(dateA);
-      } catch (e) {
-        return 0;
-      }
-    });
-
-    return sorted;
-  }
-
-  // ✅ METHOD UNTUK PARSE TANGGAL DARI STRING
-  DateTime _parseReviewDate(String dateString) {
-    try {
-      final monthMap = {
-        'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5, 'June': 6,
-        'July': 7, 'August': 8, 'September': 9, 'October': 10, 'November': 11, 'December': 12,
-        'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4, 'Mei': 5, 'Juni': 6,
-        'Juli': 7, 'Agustus': 8, 'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12,
-      };
-
-      final parts = dateString.split(' ');
-      if (parts.length == 3) {
-        final day = int.tryParse(parts[0]) ?? 1;
-        final monthName = parts[1];
-        final year = int.tryParse(parts[2]) ?? DateTime.now().year;
-        final month = monthMap[monthName] ?? DateTime.now().month;
-        return DateTime(year, month, day);
-      }
-
-      return DateTime.parse(dateString);
-    } catch (e) {
-      return DateTime(1970);
-    }
-  }
-
   Widget _buildEmptyReviews() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.grey,
+        color: Colors.grey.shade200,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
-          Icon(Icons.reviews_outlined, size: 48, color: Colors.grey),
+          Icon(Icons.reviews_outlined, size: 48, color: Colors.grey.shade400),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             'Belum ada ulasan',
-            style: TextStyle(
-              fontFamily: 'Geometr415',
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
           ),
           const SizedBox(height: 4),
-          Text(
+          const Text(
             'Jadilah yang pertama memberikan ulasan!',
-            style: TextStyle(
-              fontFamily: 'Geometr415',
-              color: Colors.grey,
-              fontSize: 12,
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
           ElevatedButton(
             onPressed: _showAddReviewPopup,
-            child: Text(
-              'Tambah Ulasan Pertama',
-              style: TextStyle(fontFamily: 'Geometr415'),
-            ),
+            child: const Text('Tambah Ulasan Pertama'),
           ),
         ],
       ),
@@ -390,13 +240,12 @@ class _DetailScreenState extends State<DetailScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-
-              // Review Content
+              // Content
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Name and Date
+                    // Name & Date
                     Row(
                       children: [
                         Expanded(
@@ -413,7 +262,6 @@ class _DetailScreenState extends State<DetailScreen> {
                         Text(
                           review.date,
                           style: TextStyle(
-                            fontFamily: 'Geometr415',
                             fontSize: 12,
                             color: Colors.grey.shade600,
                           ),
@@ -421,15 +269,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       ],
                     ),
                     const SizedBox(height: 6),
-       
-                    // Review Text
-                    Text(
-                      review.review,
-                      style: const TextStyle(
-                        fontFamily: 'Geometr415',
-                        fontSize: 14,
-                      ),
-                    ),
+                    Text(review.review, style: const TextStyle(fontSize: 14)),
                   ],
                 ),
               ),
@@ -438,6 +278,64 @@ class _DetailScreenState extends State<DetailScreen> {
         ),
       ),
     );
+  }
+
+  List<CustomerReview> _sortReviewsByDateDescending(
+    List<CustomerReview> reviews,
+  ) {
+    final sorted = List<CustomerReview>.from(reviews);
+    sorted.sort((a, b) {
+      try {
+        final dateA = _parseReviewDate(a.date);
+        final dateB = _parseReviewDate(b.date);
+        return dateB.compareTo(dateA);
+      } catch (_) {
+        return 0;
+      }
+    });
+    return sorted;
+  }
+
+  DateTime _parseReviewDate(String dateString) {
+    final monthMap = {
+      'January': 1,
+      'February': 2,
+      'March': 3,
+      'April': 4,
+      'May': 5,
+      'June': 6,
+      'July': 7,
+      'August': 8,
+      'September': 9,
+      'October': 10,
+      'November': 11,
+      'December': 12,
+      'Januari': 1,
+      'Februari': 2,
+      'Maret': 3,
+      'April': 4,
+      'Mei': 5,
+      'Juni': 6,
+      'Juli': 7,
+      'Agustus': 8,
+      'September': 9,
+      'Oktober': 10,
+      'November': 11,
+      'Desember': 12,
+    };
+
+    try {
+      final parts = dateString.split(' ');
+      if (parts.length == 3) {
+        final day = int.tryParse(parts[0]) ?? 1;
+        final month = monthMap[parts[1]] ?? DateTime.now().month;
+        final year = int.tryParse(parts[2]) ?? DateTime.now().year;
+        return DateTime(year, month, day);
+      }
+      return DateTime.parse(dateString);
+    } catch (_) {
+      return DateTime(1970);
+    }
   }
 
   Color _getAvatarColor(String name) {

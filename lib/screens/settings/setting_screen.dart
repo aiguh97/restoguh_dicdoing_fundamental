@@ -10,7 +10,13 @@ class SettingScreen extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Pengaturan")),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text(
+          "Pengaturan",
+          style: TextStyle(fontFamily: 'Geometr415'),
+        ),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -26,6 +32,7 @@ class SettingScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
+                      fontFamily: 'Geometr415',
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -39,13 +46,15 @@ class SettingScreen extends StatelessWidget {
                           children: [
                             Text(
                               "Mode Gelap",
-                              style: Theme.of(context).textTheme.titleMedium,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontFamily: 'Geometr415'),
                             ),
                             Text(
                               themeProvider.isDarkMode
                                   ? "Diaktifkan"
                                   : "Dinonaktifkan",
-                              style: Theme.of(context).textTheme.bodySmall,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(fontFamily: 'GillSansMT'),
                             ),
                           ],
                         ),
@@ -76,6 +85,7 @@ class SettingScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
+                      fontFamily: 'Geometr415',
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -119,11 +129,12 @@ class SettingScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Geometr415',
+                  ),
                 ),
-                Text(value, style: Theme.of(context).textTheme.bodySmall),
+                Text(value, style: const TextStyle(fontFamily: 'GillSansMT')),
               ],
             ),
           ),

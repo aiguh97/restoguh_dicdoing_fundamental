@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+const Color colorPrimary = Color(0xFF4CAF50);
+const Color colorSecondary = Color(0xFF1F5F23);
+
 class AppTheme {
   static const Color primaryLight = Color(0xFF4CAF50); // hijau standar
   static const Color primaryDark = Color(0xFF1F5F23); // hijau tua
