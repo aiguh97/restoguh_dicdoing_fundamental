@@ -7,6 +7,7 @@ import '../../providers/review_provider.dart';
 import 'widgets/detail_appbar.dart';
 import 'widgets/detail_header.dart';
 import 'widgets/menu_list.dart';
+import '../../providers/detail_screen_provider.dart'; // ✅ import provider
 
 class DetailScreen extends StatefulWidget {
   final String id;
@@ -17,29 +18,36 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  bool _showAppbarTitle = false;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _reviewsSectionKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _setupScrollController();
-    // Fetch restaurant detail when screen opens
+
+    // Fetch restaurant detail
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ReviewProvider>(
         context,
         listen: false,
       ).refreshRestaurantDetail(widget.id);
     });
+
+    _setupScrollController();
   }
 
   void _setupScrollController() {
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels > 120 && !_showAppbarTitle) {
-        setState(() => _showAppbarTitle = true);
-      } else if (_scrollController.position.pixels <= 120 && _showAppbarTitle) {
-        setState(() => _showAppbarTitle = false);
+      final provider = Provider.of<DetailScreenProvider>(
+        context,
+        listen: false,
+      );
+      if (_scrollController.position.pixels > 120 &&
+          !provider.showAppbarTitle) {
+        provider.updateAppbarTitle(true);
+      } else if (_scrollController.position.pixels <= 120 &&
+          provider.showAppbarTitle) {
+        provider.updateAppbarTitle(false);
       }
     });
   }
@@ -75,27 +83,32 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddReviewPopup,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        child: const Icon(Icons.add_comment),
-      ),
-      body: Consumer<ReviewProvider>(
-        builder: (context, provider, _) {
-          final r = provider.restaurantDetail;
-
+    return ChangeNotifierProvider(
+      create: (_) => DetailScreenProvider(),
+      child: Consumer2<ReviewProvider, DetailScreenProvider>(
+        builder: (context, reviewProvider, detailProvider, _) {
+          final r = reviewProvider.restaurantDetail;
           if (r == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
           }
 
           final allReviews = r.customerReviews;
-          return NotificationListener<ScrollNotification>(
-            onNotification: (_) => false,
-            child: CustomScrollView(
+
+          return Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: _showAddReviewPopup,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: const Icon(Icons.add_comment),
+            ),
+            body: CustomScrollView(
               controller: _scrollController,
               slivers: [
-                DetailAppbar(r: r, showAppbarTitle: _showAppbarTitle),
+                DetailAppbar(
+                  r: r,
+                  showAppbarTitle: detailProvider.showAppbarTitle,
+                ),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),

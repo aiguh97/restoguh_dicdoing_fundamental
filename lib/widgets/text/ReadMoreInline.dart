@@ -1,9 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:restoguh_dicoding_fundamentl/providers/read_more_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/style/colors/restoguh_colors.dart';
 import 'package:restoguh_dicoding_fundamentl/style/typography/typography_text_styles.dart';
 
-class ReadMoreInline extends StatefulWidget {
+class ReadMoreInline extends StatelessWidget {
   final String text;
   final int trimLines;
   final TextStyle? style;
@@ -18,85 +20,73 @@ class ReadMoreInline extends StatefulWidget {
   });
 
   @override
-  State<ReadMoreInline> createState() => _ReadMoreInlineState();
-}
-
-class _ReadMoreInlineState extends State<ReadMoreInline> {
-  bool isExpanded = false;
-  late final TapGestureRecognizer _toggleRecognizer;
-
-  @override
-  void initState() {
-    super.initState();
-    _toggleRecognizer = TapGestureRecognizer()
-      ..onTap = () => setState(() => isExpanded = !isExpanded);
-  }
-
-  @override
-  void dispose() {
-    _toggleRecognizer.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final defaultTextStyle = widget.style ?? RestoguhTextStyles.readMore;
+    final defaultTextStyle = style ?? RestoguhTextStyles.readMore;
     final moreTextStyle =
-        widget.moreStyle ??
+        moreStyle ??
         RestoguhTextStyles.readMoreMore.copyWith(
           color: RestoguhColors.blue.primaryColor,
         );
 
-    if (isExpanded) {
-      return Text.rich(
-        TextSpan(
-          text: widget.text,
-          style: defaultTextStyle,
-          children: [
-            TextSpan(
-              text: ' Read Less',
-              style: moreTextStyle,
-              recognizer: _toggleRecognizer,
-            ),
-          ],
-        ),
-      );
-    }
+    return ChangeNotifierProvider(
+      create: (_) => ReadMoreProvider(),
+      child: Consumer<ReadMoreProvider>(
+        builder: (context, provider, child) {
+          final _toggleRecognizer = TapGestureRecognizer()
+            ..onTap = provider.toggle;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final span = TextSpan(text: widget.text, style: defaultTextStyle);
-        final tp = TextPainter(
-          text: span,
-          maxLines: widget.trimLines,
-          textDirection: TextDirection.ltr,
-          ellipsis: '…',
-        )..layout(maxWidth: constraints.maxWidth);
-
-        if (!tp.didExceedMaxLines) {
-          return Text(widget.text, style: defaultTextStyle);
-        }
-
-        // Cari posisi pemotongan teks agar muat
-        final cutoff = tp.getPositionForOffset(
-          Offset(tp.width, tp.preferredLineHeight * widget.trimLines),
-        );
-        final endIndex = cutoff.offset.clamp(0, widget.text.length);
-
-        return Text.rich(
-          TextSpan(
-            text: '${widget.text.substring(0, endIndex).trimRight()}… ',
-            style: defaultTextStyle,
-            children: [
+          if (provider.isExpanded) {
+            return Text.rich(
               TextSpan(
-                text: 'Read More',
-                style: moreTextStyle,
-                recognizer: _toggleRecognizer,
+                text: text,
+                style: defaultTextStyle,
+                children: [
+                  TextSpan(
+                    text: ' Read Less',
+                    style: moreTextStyle,
+                    recognizer: _toggleRecognizer,
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      },
+            );
+          }
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final span = TextSpan(text: text, style: defaultTextStyle);
+              final tp = TextPainter(
+                text: span,
+                maxLines: trimLines,
+                textDirection: TextDirection.ltr,
+                ellipsis: '…',
+              )..layout(maxWidth: constraints.maxWidth);
+
+              if (!tp.didExceedMaxLines) {
+                return Text(text, style: defaultTextStyle);
+              }
+
+              final cutoff = tp.getPositionForOffset(
+                Offset(tp.width, tp.preferredLineHeight * trimLines),
+              );
+              final endIndex = cutoff.offset.clamp(0, text.length);
+
+              return Text.rich(
+                TextSpan(
+                  text: '${text.substring(0, endIndex).trimRight()}… ',
+                  style: defaultTextStyle,
+                  children: [
+                    TextSpan(
+                      text: 'Read More',
+                      style: moreTextStyle,
+                      recognizer: _toggleRecognizer,
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

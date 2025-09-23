@@ -1,61 +1,41 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
+import 'package:restoguh_dicoding_fundamentl/providers/review_list_provider.dart';
 import '../../../../models/restaurant_detail.dart';
 
-class ReviewList extends StatefulWidget {
+class ReviewList extends StatelessWidget {
   final List<CustomerReview> sortedReviews;
 
   const ReviewList({super.key, required this.sortedReviews});
 
   @override
-  State<ReviewList> createState() => _ReviewListState();
-}
-
-class _ReviewListState extends State<ReviewList> {
-  final ScrollController _scrollController = ScrollController();
-  int _itemsToShow = 2; // awalnya 2 item
-
-  @override
-  void initState() {
-    super.initState();
-
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 100) {
-        // ketika scroll mendekati bawah
-        _loadMore();
-      }
-    });
-  }
-
-  void _loadMore() {
-    if (_itemsToShow < widget.sortedReviews.length) {
-      setState(() {
-        _itemsToShow += 2; // tambah 2 item lagi
-        if (_itemsToShow > widget.sortedReviews.length) {
-          _itemsToShow = widget.sortedReviews.length;
-        }
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      controller: _scrollController,
-      shrinkWrap: true,
-      physics: const AlwaysScrollableScrollPhysics(),
-      itemCount: _itemsToShow,
-      itemBuilder: (context, index) {
-        final review = widget.sortedReviews[index];
-        return _buildReviewItem(review);
-      },
+    return ChangeNotifierProvider(
+      create: (_) => ReviewListProvider(),
+      child: Consumer<ReviewListProvider>(
+        builder: (context, provider, _) {
+          final itemsToShow = provider.itemsToShow;
+
+          return NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification.metrics.pixels >=
+                  notification.metrics.maxScrollExtent - 100) {
+                provider.loadMore(sortedReviews.length);
+              }
+              return false;
+            },
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: itemsToShow,
+              itemBuilder: (context, index) {
+                final review = sortedReviews[index];
+                return _buildReviewItem(review);
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -108,7 +88,6 @@ class _ReviewListState extends State<ReviewList> {
                         Text(
                           review.date,
                           style: TextStyle(
-                            fontFamily: 'Geometr415',
                             fontSize: 12,
                             color: Colors.grey.shade600,
                           ),
@@ -117,13 +96,7 @@ class _ReviewListState extends State<ReviewList> {
                     ),
                     const SizedBox(height: 6),
                     // Review Text
-                    Text(
-                      review.review,
-                      style: const TextStyle(
-                        fontFamily: 'Geometr415',
-                        fontSize: 14,
-                      ),
-                    ),
+                    Text(review.review, style: const TextStyle(fontSize: 14)),
                   ],
                 ),
               ),
@@ -134,7 +107,7 @@ class _ReviewListState extends State<ReviewList> {
     );
   }
 
-  // Dummy method, ganti dengan implementasi asli
+  // Dummy method, ganti sesuai implementasi asli
   Color _getAvatarColor(String name) {
     return Colors.blue;
   }

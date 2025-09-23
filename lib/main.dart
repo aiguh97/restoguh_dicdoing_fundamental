@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:restoguh_dicoding_fundamentl/providers/detail_screen_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/home_provider.dart';
+import 'package:restoguh_dicoding_fundamentl/providers/menu_provider.dart';
+import 'package:restoguh_dicoding_fundamentl/providers/onboarding_provider.dart';
+import 'package:restoguh_dicoding_fundamentl/providers/read_more_provider.dart';
+import 'package:restoguh_dicoding_fundamentl/providers/review_list_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/review_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/theme_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/onboarding_screen.dart';
@@ -22,9 +27,14 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => OnboardingProvider()),
+        ChangeNotifierProvider(create: (_) => ReadMoreProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => ReviewListProvider()),
+        ChangeNotifierProvider(create: (_) => DetailScreenProvider()),
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
+        ChangeNotifierProvider(create: (_) => MenuProvider()),
       ],
       child: MyApp(seenOnboarding: seenOnboarding),
     ),
@@ -50,7 +60,7 @@ class MyApp extends StatelessWidget {
               : ThemeMode.light,
           initialRoute: seenOnboarding ? "/home" : "/",
           routes: {
-            "/": (context) => const OnboardingScreen(),
+            "/": (context) => OnboardingScreen(),
             "/home": (context) => const MenuScreen(),
           },
         );

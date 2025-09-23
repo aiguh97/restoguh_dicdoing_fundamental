@@ -1,33 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/theme_provider.dart';
+import 'package:restoguh_dicoding_fundamentl/providers/menu_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/home_screen.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/settings/setting_screen.dart';
 import 'package:restoguh_dicoding_fundamentl/style/typography/typography_text_styles.dart';
 
-class MenuScreen extends StatefulWidget {
+class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
 
-  @override
-  State<MenuScreen> createState() => _MenuScreenState();
-}
-
-class _MenuScreenState extends State<MenuScreen> {
-  int _currentIndex = 0;
-
-  final List<Widget> _screens = [const HomeScreen(), const SettingScreen()];
+  final List<Widget> _screens = const [HomeScreen(), SettingScreen()];
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final menuProvider = Provider.of<MenuProvider>(context);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: IndexedStack(index: menuProvider.currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        currentIndex: menuProvider.currentIndex,
+        onTap: (index) => menuProvider.setIndex(index),
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Colors.grey,
         selectedLabelStyle: RestoguhTextStyles.bodyLargeBold.copyWith(
@@ -46,9 +41,7 @@ class _MenuScreenState extends State<MenuScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          themeProvider.toggleTheme(!themeProvider.isDarkMode);
-        },
+        onPressed: () => themeProvider.toggleTheme(!themeProvider.isDarkMode),
         backgroundColor: Theme.of(context).colorScheme.primary,
         child: Icon(
           themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
