@@ -39,7 +39,7 @@ class DetailHeader extends StatelessWidget {
             const SizedBox(width: 6),
             Expanded(
               child: Text(
-                r.address,
+                "${r.address}, ${r.city}",
                 style: textTheme.bodyMedium,
                 overflow: TextOverflow.ellipsis,
               ),
