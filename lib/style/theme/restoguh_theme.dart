@@ -6,7 +6,7 @@ class RestoguhTheme {
   /// Light Theme
   static ThemeData get lightTheme {
     return ThemeData(
-      colorSchemeSeed: Colors.white,
+      colorSchemeSeed: RestoguhColors.green.secondaryColor,
       brightness: Brightness.light,
       textTheme: _textTheme,
       useMaterial3: true,

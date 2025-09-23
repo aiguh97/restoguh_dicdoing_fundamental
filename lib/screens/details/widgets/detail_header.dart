@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:restoguh_dicoding_fundamentl/style/colors/restoguh_colors.dart';
 import 'package:restoguh_dicoding_fundamentl/widgets/text/ReadMoreInline.dart';
 import '../../../models/restaurant_detail.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,22 +6,25 @@ import 'package:flutter_svg/flutter_svg.dart';
 class DetailHeader extends StatelessWidget {
   final RestaurantDetail r;
   final VoidCallback onShowReviews;
+
   const DetailHeader({super.key, required this.r, required this.onShowReviews});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Restaurant Name
         Text(
           r.name,
-          style: const TextStyle(
-            fontFamily: 'GillSansMT',
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 6),
+        // Address Row
         Row(
           children: [
             SvgPicture.asset(
@@ -30,52 +32,52 @@ class DetailHeader extends StatelessWidget {
               width: 20,
               height: 20,
               colorFilter: ColorFilter.mode(
-                Theme.of(context).primaryColor,
+                colorScheme.primary,
                 BlendMode.srcIn,
               ),
             ),
             const SizedBox(width: 6),
-            Text(r.address, style: const TextStyle(fontFamily: 'Geometr415')),
+            Expanded(
+              child: Text(
+                r.address,
+                style: textTheme.bodyMedium,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 8),
+        // Rating and Review Link
         Row(
           children: [
             Icon(
               Icons.star,
               size: 18,
-              color: RestoguhColors.amber.primaryColor, // pakai RestoguhColors
+              color: colorScheme.secondary, // bisa pakai secondary dari theme
             ),
             const SizedBox(width: 6),
-            Text(
-              r.rating.toString(),
-              style: const TextStyle(fontFamily: 'Geometr415'),
-            ),
-            const SizedBox(width: 6),
+            Text(r.rating.toString(), style: textTheme.bodyMedium),
+            const SizedBox(width: 12),
             InkWell(
               onTap: onShowReviews,
               child: Text(
                 'Lihat Review',
-                style: TextStyle(
-                  fontFamily: 'Geometr415',
+                style: textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: colorScheme.primary,
                 ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
+        // Description
         ReadMoreInline(
           text: r.description,
           trimLines: 4,
-          style: const TextStyle(
-            color: Color.fromARGB(255, 0, 0, 0),
-            letterSpacing: 1.45,
-            fontFamily: 'SFUIDisplay',
-          ),
-          moreStyle: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
+          style: textTheme.bodySmall?.copyWith(letterSpacing: 1.45),
+          moreStyle: textTheme.bodySmall?.copyWith(
+            color: colorScheme.primary,
             fontWeight: FontWeight.w700,
           ),
         ),

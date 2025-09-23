@@ -55,17 +55,14 @@ class RestaurantCard extends StatelessWidget {
                   width: 20,
                   height: 20,
                   colorFilter: ColorFilter.mode(
-                    Theme.of(
-                      context,
-                    ).primaryColor, // pakai primary color dari theme
+                    Theme.of(context).colorScheme.primary,
                     BlendMode.srcIn,
                   ),
                 ),
-
                 const SizedBox(width: 4),
                 Text(
                   restaurant.city,
-                  style: TextStyle(fontFamily: 'GillSansMT'),
+                  style: const TextStyle(fontFamily: 'GillSansMT'),
                 ),
               ],
             ),
@@ -76,7 +73,7 @@ class RestaurantCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   restaurant.rating.toString(),
-                  style: TextStyle(fontFamily: 'GillSansMT'),
+                  style: const TextStyle(fontFamily: 'GillSansMT'),
                 ),
               ],
             ),
