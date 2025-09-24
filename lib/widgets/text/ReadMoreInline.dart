@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +33,7 @@ class ReadMoreInline extends StatelessWidget {
       create: (_) => ReadMoreProvider(),
       child: Consumer<ReadMoreProvider>(
         builder: (context, provider, child) {
-          final _toggleRecognizer = TapGestureRecognizer()
+          final toggleRecognizer = TapGestureRecognizer()
             ..onTap = provider.toggle;
 
           if (provider.isExpanded) {
@@ -44,7 +45,7 @@ class ReadMoreInline extends StatelessWidget {
                   TextSpan(
                     text: ' Read Less',
                     style: moreTextStyle,
-                    recognizer: _toggleRecognizer,
+                    recognizer: toggleRecognizer,
                   ),
                 ],
               ),
@@ -78,7 +79,7 @@ class ReadMoreInline extends StatelessWidget {
                     TextSpan(
                       text: 'Read More',
                       style: moreTextStyle,
-                      recognizer: _toggleRecognizer,
+                      recognizer: toggleRecognizer,
                     ),
                   ],
                 ),

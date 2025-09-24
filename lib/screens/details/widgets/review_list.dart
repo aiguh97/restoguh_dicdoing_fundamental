@@ -100,28 +100,21 @@ class ReviewList extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
+        color: Colors.grey,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.reviews_outlined,
-            size: 48,
-            color: Colors.grey.withOpacity(0.5),
-          ),
+          Icon(Icons.reviews_outlined, size: 48, color: Colors.grey),
           const SizedBox(height: 8),
           Text(
             'Belum ada ulasan',
-            style: TextStyle(
-              color: Colors.grey.withOpacity(0.7),
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
             'Jadilah yang pertama memberikan ulasan!',
-            style: TextStyle(color: Colors.grey.withOpacity(0.5), fontSize: 12),
+            style: TextStyle(color: Colors.grey, fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ],
@@ -163,6 +156,7 @@ class ReviewList extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
+                  // ignore: deprecated_member_use
                 ).colorScheme.surfaceVariant.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(12),
               ),

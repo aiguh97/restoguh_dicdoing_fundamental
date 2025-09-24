@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'package:restoguh_dicoding_fundamentl/models/restaurant_detail.dart';
 
 sealed class RestoguhDetailResultState {}

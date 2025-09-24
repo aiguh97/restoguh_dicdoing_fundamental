@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:restoguh_dicoding_fundamentl/services/api_service.dart';
 import 'package:restoguh_dicoding_fundamentl/static/restoguh_detail_result_state%20.dart';
-// import 'package:restoguh_dicoding_fundamentl/static/restoguh_detail_result_state.dart';
 
 class DetailScreenProvider extends ChangeNotifier {
   bool _showAppbarTitle = false;
@@ -23,12 +22,10 @@ class DetailScreenProvider extends ChangeNotifier {
       notifyListeners();
 
       final result = await ApiService.fetchRestaurantDetail(id);
-
       _resultState = RestoguhDetailLoadedState(result);
-      notifyListeners();
     } catch (e) {
       _resultState = RestoguhDetailErrorState(e.toString());
-      notifyListeners();
     }
+    notifyListeners();
   }
 }

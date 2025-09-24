@@ -47,11 +47,7 @@ class DetailAppbar extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.4),
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.2),
-                  ],
+                  colors: [Colors.black, Colors.transparent, Colors.black],
                   stops: const [0.0, 0.5, 1.0],
                 ),
               ),
@@ -90,6 +86,7 @@ class DetailAppbar extends StatelessWidget {
                       //   ),
                       CircleSvgImage(
                         assetPath: "assets/svg/bookmark.svg",
+                        // ignore: avoid_print
                         onTap: () => print("Bookmark tapped!"),
                         backgroundColor: const Color(0XFF1B1E28),
                         iconColor: Colors.white,

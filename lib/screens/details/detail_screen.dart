@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:restoguh_dicoding_fundamentl/providers/detail_screen_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/details/widgets/detail_add_review.dart';
 import 'package:restoguh_dicoding_fundamentl/widgets/category_list.dart';
-import '../../services/api_service.dart';
 import '../../models/restaurant_detail.dart';
 import 'widgets/detail_appbar.dart';
 import 'widgets/detail_header.dart';
 import 'widgets/menu_list.dart';
+import 'package:restoguh_dicoding_fundamentl/static/restoguh_detail_result_state%20.dart';
 
 class DetailScreen extends StatefulWidget {
   final String id;
@@ -16,20 +18,16 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  late Future<RestaurantDetail> _future;
-  bool _showAppbarTitle = false;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _reviewsSectionKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _future = ApiService.fetchRestaurantDetail(widget.id);
-  }
-
-  void _refreshData() {
-    setState(() {
-      _future = ApiService.fetchRestaurantDetail(widget.id);
+    // load data di awal
+    Future.microtask(() {
+      // ignore: use_build_context_synchronously
+      context.read<DetailScreenProvider>().fetchRestaurantDetail(widget.id);
     });
   }
 
@@ -62,105 +60,119 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddReviewPopup,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        child: const Icon(Icons.add_comment),
-      ),
-      body: FutureBuilder<RestaurantDetail>(
-        future: _future,
-        builder: (context, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snap.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset("assets/images/no_internet.png", width: 250),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Koneksi Terputus',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: _refreshData,
-                    child: const Text('Refresh'),
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      // snap.error.toString(),
-                      "Periksa jaringan internet anda",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          } else if (!snap.hasData || snap.data == null) {
-            return const Center(child: Text('No data'));
-          }
-
-          final r = snap.data!;
-          // sisanya tetap → NotificationListener + CustomScrollView
-          return NotificationListener<ScrollNotification>(
+    return Consumer<DetailScreenProvider>(
+      builder: (context, provider, _) {
+        return Scaffold(
+          floatingActionButton: FloatingActionButton(
+            onPressed: _showAddReviewPopup,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: const Icon(Icons.add_comment),
+          ),
+          body: NotificationListener<ScrollNotification>(
             onNotification: (scroll) {
               if (scroll.metrics.axis == Axis.vertical) {
-                if (scroll.metrics.pixels > 120 && !_showAppbarTitle) {
-                  setState(() => _showAppbarTitle = true);
-                } else if (scroll.metrics.pixels <= 120 && _showAppbarTitle) {
-                  setState(() => _showAppbarTitle = false);
+                if (scroll.metrics.pixels > 120) {
+                  provider.updateAppbarTitle(true);
+                } else {
+                  provider.updateAppbarTitle(false);
                 }
               }
               return false;
             },
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                DetailAppbar(r: r, showAppbarTitle: _showAppbarTitle),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+            child: Builder(
+              builder: (_) {
+                final state = provider.resultState;
+
+                if (state is RestoguhDetailLoadingState) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is RestoguhDetailErrorState) {
+                  return Center(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        DetailHeader(r: r, onShowReviews: _scrollToReviews),
-                        const SizedBox(height: 16),
-                        CategoryList(categories: r.categories),
-                        const SizedBox(height: 16),
-                        MenuList(
-                          title: "Makanan",
-                          items: r.foods,
-                          imagePath: "assets/images/makanan.png",
+                        Image.asset(
+                          "assets/images/no_internet.png",
+                          width: 250,
                         ),
                         const SizedBox(height: 16),
-                        MenuList(
-                          title: "Minuman",
-                          items: r.drinks,
-                          imagePath: "assets/images/minuman.png",
+                        const Text(
+                          'Koneksi Terputus',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton(
+                          onPressed: () =>
+                              provider.fetchRestaurantDetail(widget.id),
+                          child: const Text('Refresh'),
                         ),
                         const SizedBox(height: 16),
-                        _buildReviewsSection(r.customerReviews),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 24),
+                          child: Text(
+                            "Periksa jaringan internet anda",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                ),
-              ],
+                  );
+                } else if (state is RestoguhDetailLoadedState) {
+                  final r = state.restaurant;
+                  return CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      DetailAppbar(
+                        r: r,
+                        showAppbarTitle: provider.showAppbarTitle,
+                      ),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              DetailHeader(
+                                r: r,
+                                onShowReviews: _scrollToReviews,
+                              ),
+                              const SizedBox(height: 16),
+                              CategoryList(categories: r.categories),
+                              const SizedBox(height: 16),
+                              MenuList(
+                                title: "Makanan",
+                                items: r.foods,
+                                imagePath: "assets/images/makanan.png",
+                              ),
+                              const SizedBox(height: 16),
+                              MenuList(
+                                title: "Minuman",
+                                items: r.drinks,
+                                imagePath: "assets/images/minuman.png",
+                              ),
+                              const SizedBox(height: 16),
+                              _buildReviewsSection(r.customerReviews),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  return const Center(child: Text('No data'));
+                }
+              },
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildReviewsSection(List<CustomerReview> reviews) {
-    final sortedReviews = _sortReviewsByDateDescending(reviews);
-
     return KeyedSubtree(
       key: _reviewsSectionKey,
       child: Column(
@@ -178,6 +190,7 @@ class _DetailScreenState extends State<DetailScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
                   color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -201,11 +214,11 @@ class _DetailScreenState extends State<DetailScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          if (sortedReviews.isEmpty)
+          if (reviews.isEmpty)
             _buildEmptyReviews()
           else
             Column(
-              children: sortedReviews
+              children: reviews
                   .map((review) => _buildReviewItem(review))
                   .toList(),
             ),
@@ -214,68 +227,11 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  List<CustomerReview> _sortReviewsByDateDescending(
-    List<CustomerReview> reviews,
-  ) {
-    final sorted = List<CustomerReview>.from(reviews);
-    sorted.sort((a, b) {
-      try {
-        final dateA = _parseReviewDate(a.date);
-        final dateB = _parseReviewDate(b.date);
-        return dateB.compareTo(dateA);
-      } catch (_) {
-        return 0;
-      }
-    });
-    return sorted;
-  }
-
-  DateTime _parseReviewDate(String dateString) {
-    final monthMap = {
-      'January': 1,
-      'February': 2,
-      'March': 3,
-      'April': 4,
-      'May': 5,
-      'June': 6,
-      'July': 7,
-      'August': 8,
-      'September': 9,
-      'October': 10,
-      'November': 11,
-      'December': 12,
-      'Januari': 1,
-      'Februari': 2,
-      'Maret': 3,
-      'April': 4,
-      'Mei': 5,
-      'Juni': 6,
-      'Juli': 7,
-      'Agustus': 8,
-      'September': 9,
-      'Oktober': 10,
-      'November': 11,
-      'Desember': 12,
-    };
-
-    try {
-      final parts = dateString.split(' ');
-      if (parts.length == 3) {
-        final day = int.tryParse(parts[0]) ?? 1;
-        final month = monthMap[parts[1]] ?? DateTime.now().month;
-        final year = int.tryParse(parts[2]) ?? DateTime.now().year;
-        return DateTime(year, month, day);
-      }
-      return DateTime.parse(dateString);
-    } catch (_) {
-      return DateTime(1970);
-    }
-  }
-
   Widget _buildEmptyReviews() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
+        // ignore: deprecated_member_use
         color: Colors.grey.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
       ),

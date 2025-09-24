@@ -89,10 +89,12 @@ class _AddReviewPopupState extends State<AddReviewPopup> {
                             ),
                             maxLines: 4,
                             validator: (value) {
-                              if (value == null || value.isEmpty)
+                              if (value == null || value.isEmpty) {
                                 return 'Ulasan harus diisi';
-                              if (value.length < 3)
+                              }
+                              if (value.length < 3) {
                                 return 'Ulasan terlalu pendek';
+                              }
                               return null;
                             },
                           ),
@@ -104,8 +106,9 @@ class _AddReviewPopupState extends State<AddReviewPopup> {
                               onPressed: provider.isSubmitting
                                   ? null
                                   : () async {
-                                      if (!_formKey.currentState!.validate())
+                                      if (!_formKey.currentState!.validate()) {
                                         return;
+                                      }
 
                                       await provider.submitReview(
                                         widget.restaurantId,
@@ -114,8 +117,10 @@ class _AddReviewPopupState extends State<AddReviewPopup> {
                                       );
 
                                       if (mounted) {
+                                        // ignore: use_build_context_synchronously
                                         Navigator.pop(context);
                                         ScaffoldMessenger.of(
+                                          // ignore: use_build_context_synchronously
                                           context,
                                         ).showSnackBar(
                                           const SnackBar(
