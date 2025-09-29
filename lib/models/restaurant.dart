@@ -25,4 +25,15 @@ class Restaurant {
         ? (json['rating'] as int).toDouble()
         : (json['rating'] as num).toDouble(),
   );
+
+  //untuk simpan ke SQLite
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'city': city,
+      'rating': rating,
+      'pictureId': pictureId,
+    };
+  }
 }

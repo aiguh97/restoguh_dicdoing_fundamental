@@ -1,0 +1,38 @@
+# .github/workflows/test.yml
+name: Flutter Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          
+      - name: Install dependencies
+        run: flutter pub get
+        
+      - name: Run unit tests
+        run: flutter test test/models/ test/providers/
+        
+      - name: Run widget tests  
+        run: flutter test test/screens/
+        
+      - name: Run integration tests
+        run: flutter test integration_test/
+        
+      - name: Generate coverage
+        run: flutter test --coverage
+        
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3

@@ -87,11 +87,24 @@ class RestaurantCard extends StatelessWidget {
               ],
             ),
             IconButton(
-              icon: Icon(
-                isFav ? Icons.favorite : Icons.favorite_border,
-                color: isFav ? Colors.red : Colors.grey,
+              icon: FutureBuilder<bool>(
+                future: favoriteProvider.isFavorite(restaurant.id),
+                builder: (context, snapshot) {
+                  final isFav = snapshot.data ?? false;
+                  return Icon(
+                    isFav ? Icons.favorite : Icons.favorite_border,
+                    color: isFav ? Colors.red : Colors.grey,
+                  );
+                },
               ),
-              onPressed: () => favoriteProvider.toggleFavorite(restaurant),
+              onPressed: () async {
+                final isFav = await favoriteProvider.isFavorite(restaurant.id);
+                if (isFav) {
+                  await favoriteProvider.removeFavorite(restaurant.id);
+                } else {
+                  await favoriteProvider.addFavorite(restaurant);
+                }
+              },
             ),
           ],
         ),
