@@ -9,21 +9,27 @@ on:
       - main
 
 jobs:
-  build-test-release:
-    name: Build, Test, and Release APK
+  build:
     runs-on: ubuntu-latest
-
     env:
       FLUTTER_VERSION: 3.35.4
+      ANDROID_HOME: /opt/android-sdk-linux
+      PATH: $PATH:/opt/android-sdk-linux/emulator:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/tools/bin:/opt/android-sdk-linux/platform-tools
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
 
       - name: Flutter Pub Get
         run: flutter pub get
@@ -31,7 +37,7 @@ jobs:
       - name: Run Unit & Widget Tests
         run: flutter test
 
-      - name: Setup Android Emulator
+      - name: Run Integration Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 33
@@ -39,9 +45,8 @@ jobs:
           arch: x86_64
           force-avd-creation: true
           emulator-options: -no-window -no-audio
-
-      - name: Run Integration Tests
         run: flutter test integration_test/
+
 
       - name: Build APK
         run: flutter build apk --release
