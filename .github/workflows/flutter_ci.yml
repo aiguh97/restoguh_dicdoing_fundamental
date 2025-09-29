@@ -4,64 +4,193 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request:
     branches:
       - main
+      - develop
 
 jobs:
-  build:
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
     env:
-      FLUTTER_VERSION: 3.35.4
-      ANDROID_HOME: /opt/android-sdk-linux
-      PATH: $PATH:/opt/android-sdk-linux/emulator:/opt/android-sdk-linux/tools:/opt/android-sdk-linux/tools/bin:/opt/android-sdk-linux/platform-tools
+      FLUTTER_VERSION: '3.19.0'  # ✅ Gunakan versi yang lebih stabil
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-        with:
-          api-level: 33
-          target: google_apis
-          arch: x86_64
-
-      - name: Flutter Pub Get
+      - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run Unit & Widget Tests
-        run: flutter test
+      - name: Verify Flutter Installation
+        run: flutter doctor
 
-      - name: Run Integration Tests
-        uses: reactivecircus/android-emulator-runner@v2
+      - name: Run Unit Tests
+        run: flutter test test/providers/ test/models/
+
+      - name: Run Widget Tests
+        run: flutter test test/screens/
+
+      - name: Run All Tests with Coverage
+        run: |
+          flutter test --coverage
+          genhtml coverage/lcov.info -o coverage/html
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
         with:
-          api-level: 33
-          target: google_apis
-          arch: x86_64
-          force-avd-creation: true
-          emulator-options: -no-window -no-audio
-        run: flutter test integration_test/
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
 
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    needs: test  # ✅ Tunggu test selesai dulu
+    env:
+      FLUTTER_VERSION: '3.19.0'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Dependencies
+        run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --no-tree-shake-icons
 
-      - name: Upload APK as Artifact
+      - name: Build App Bundle
+        run: flutter build appbundle --release --no-tree-shake-icons
+
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release.apk
+          name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+
+      - name: Upload App Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-bundle
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 30
+
+  # ✅ OPSIONAL: Build iOS (hanya untuk macOS runner)
+  build-ios:
+    name: Build iOS
+    runs-on: macos-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      FLUTTER_VERSION: '3.19.0'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build iOS
+        run: flutter build ios --release --no-codesign
+
+      - name: Upload iOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-ios-release
+          path: build/ios/
+          retention-days: 30
+
+  # ✅ OPSIONAL: Integration Tests (jika diperlukan)
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run Integration Tests
+        run: |
+          flutter drive \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/app_test.dart
+
+  # ✅ OPSIONAL: Create Release (hanya untuk main branch)
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [test, build-android]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-release-apk
+          path: ./artifacts/
 
       - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
+        id: create_release
+        uses: softprops/action-gh-release@v1
         with:
-          tag: v${{ github.run_number }}
+          tag_name: v${{ github.run_number }}
           name: Release v${{ github.run_number }}
-          body: Automated release from GitHub Actions
-          files: build/app/outputs/flutter-apk/app-release.apk
-          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            ## Automated Release
+            
+            **Build Number:** ${{ github.run_number }}
+            **Commit:** ${{ github.sha }}
+            **Date:** ${{ github.event.head_commit.timestamp }}
+            
+            ### Changes:
+            - Automated build and test
+            - APK ready for distribution
+          draft: false
+          prerelease: false
+          files: |
+            ./artifacts/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
