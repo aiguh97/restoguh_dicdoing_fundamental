@@ -5,7 +5,6 @@ import 'package:restoguh_dicoding_fundamentl/providers/reminder_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/theme_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/services/api_service.dart';
 import 'package:restoguh_dicoding_fundamentl/services/local_notification_service.dart';
-
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/detail_screen_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/favorite_provider.dart';
@@ -15,13 +14,11 @@ import 'package:restoguh_dicoding_fundamentl/providers/onboarding_provider.dart'
 import 'package:restoguh_dicoding_fundamentl/providers/read_more_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/review_list_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/review_provider.dart';
-// import 'package:restoguh_dicoding_fundamentl/providers/local_notification_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/onboarding_screen.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/menu_screen.dart';
 import 'package:restoguh_dicoding_fundamentl/style/theme/restoguh_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
-import 'background_task.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
