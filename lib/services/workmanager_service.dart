@@ -12,12 +12,10 @@ void callbackDispatcher() {
       final notificationService = LocalNotificationService();
       await notificationService.init();
 
-      final apiService = ApiService(); // ✅ bikin instance
+      final apiService = ApiService();
 
       if (task == MyWorkmanager.oneOff.taskName ||
           task == MyWorkmanager.oneOff.uniqueName) {
-        print("One-off task inputData: $inputData");
-
         await notificationService.showNotification(
           id: 1,
           title: "One-off Task",
@@ -25,16 +23,19 @@ void callbackDispatcher() {
         );
       } else if (task == MyWorkmanager.periodic.taskName ||
           task == 'dailyTask') {
-        final randomNumber =
-            Random().nextInt(20) + 1; // ✅ lebih aman range kecil
+        // ✅ jalankan logic reminder
+        final randomNumber = Random().nextInt(20) + 1;
         final result = await apiService.fetchRestaurantDetail("$randomNumber");
-        print("Periodic task result: $result");
 
         await notificationService.showNotification(
           id: 2,
           title: "Daily Restaurant Reminder",
           body: "Coba lihat resto rekomendasi: ${result.name}",
         );
+
+        // ✅ reschedule untuk besok jam 11
+        final workmanagerService = WorkmanagerService(Workmanager());
+        await workmanagerService.runDailyTaskAt11AM();
       }
 
       return Future.value(true);
@@ -81,19 +82,12 @@ class WorkmanagerService {
     );
   }
 
-  // Jalankan task setiap hari pukul 11:00 AM
+  // === Jalankan task harian jam 11:00 AM ===
   Future<void> runDailyTaskAt11AM() async {
     final now = DateTime.now();
-    DateTime next11AM = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      11, // jam 11
-      0, // menit 0
-    );
+    DateTime next11AM = DateTime(now.year, now.month, now.day, 11, 0);
 
     if (now.isAfter(next11AM)) {
-      // kalau sudah lewat jam 11 hari ini, jadwalkan untuk besok
       next11AM = next11AM.add(const Duration(days: 1));
     }
 
@@ -107,7 +101,13 @@ class WorkmanagerService {
       inputData: {"data": "Payload for daily 11AM task"},
     );
 
-    print("Daily task scheduled in $initialDelay");
+    print("Daily task scheduled at $next11AM (delay: $initialDelay)");
+  }
+
+  // Cancel khusus task daily jam 11:00
+  Future<void> cancelDailyTaskAt11AM() async {
+    await _workmanager.cancelByUniqueName('dailyTaskAt11AM');
+    print("Daily task at 11:00 AM canceled");
   }
 
   Future<void> cancelAllTask() async {

@@ -17,25 +17,28 @@ void main() {
     test('Berhasil ambil daftar restoran dari API', () async {
       final mockClient = MockClient((request) async {
         return http.Response(
-            jsonEncode({
-              "error": false,
-              "message": "success",
-              "count": 1,
-              "restaurants": [
-                {
-                  "id": "1",
-                  "name": "Restoran Enak",
-                  "description": "Mantap",
-                  "pictureId": "14",
-                  "city": "Jakarta",
-                  "rating": 4.5
-                }
-              ]
-            }),
-            200);
+          jsonEncode({
+            "error": false,
+            "message": "success",
+            "count": 1,
+            "restaurants": [
+              {
+                "id": "1",
+                "name": "Restoran Enak",
+                "description": "Mantap",
+                "pictureId": "14",
+                "city": "Jakarta",
+                "rating": 4.5
+              }
+            ]
+          }),
+          200,
+        );
       });
 
-      final api = ApiService();
+      final api = ApiService(client: mockClient);
+
+      ///  pakai mockClient
       final provider = HomeProvider(apiService: api);
 
       await provider.fetchRestaurants();
@@ -51,7 +54,9 @@ void main() {
         return http.Response("Server Error", 500);
       });
 
-      final api = ApiService();
+      final api = ApiService(client: mockClient);
+
+      ///  inject client
       final provider = HomeProvider(apiService: api);
 
       await provider.fetchRestaurants();

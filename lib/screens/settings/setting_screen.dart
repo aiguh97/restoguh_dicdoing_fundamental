@@ -13,14 +13,20 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
+  bool _isDailyReminderOn = false; // ✅ state switch
+
   @override
   Widget build(BuildContext context) {
     void _runDailyTaskAt11AM() async {
-      context.read<WorkmanagerService>().runDailyTaskAt11AM();
+      await context.read<WorkmanagerService>().runDailyTaskAt11AM();
+    }
+
+    void _cancelDailyTaskAt11AM() async {
+      await context.read<WorkmanagerService>().cancelDailyTaskAt11AM();
     }
 
     void _runOneOffTask() async {
-      context.read<WorkmanagerService>().runOneOffTask();
+      await context.read<WorkmanagerService>().runOneOffTask();
     }
 
     return Scaffold(
@@ -91,54 +97,44 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Schedule 1:30 AM Notification
-                    Column(
+                    // Schedule 11:00 AM Notification
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.nightlight_round,
-                              color: Colors.blue,
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Daily Reminder 11:0 AM",
-                                    style: RestoguhTextStyles.titleMedium,
-                                  ),
-                                  Text(
-                                    "Pengingat Notifikasi Restaurant",
-                                    // style: RestoguhTextStyles.bodySmall
-                                    //     .copyWith(color: Colors.grey),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                        const Icon(
+                          Icons.notifications_active,
+                          color: Colors.blue,
                         ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  _runDailyTaskAt11AM();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: const Text(
-                                  'Aktifkan Pengingat 11:00 AM',
-                                ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Daily Reminder 11:00 AM",
+                                style: RestoguhTextStyles.titleMedium,
                               ),
-                            ),
-                          ],
+                              Text(
+                                "Pengingat Notifikasi Restaurant",
+                                style: RestoguhTextStyles.bodyLargeMedium
+                                    .copyWith(color: Colors.grey),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        Switch(
+                          value: _isDailyReminderOn,
+                          onChanged: (value) async {
+                            setState(() {
+                              _isDailyReminderOn = value;
+                            });
+
+                            if (value) {
+                              _runDailyTaskAt11AM();
+                            } else {
+                              _cancelDailyTaskAt11AM();
+                            }
+                          },
+                        ),
                       ],
                     ),
 
