@@ -22,27 +22,35 @@ void main() {
         rating: 4.8,
       );
 
+      // Gunakan ChangeNotifierProvider agar state dapat diakses
       await tester.pumpWidget(
         ChangeNotifierProvider(
           create: (_) => FavoriteProvider(),
           child: MaterialApp(
             home: Scaffold(
-              body: RestaurantCard(restaurant: restaurant, onTap: () {}),
+              body: RestaurantCard(
+                restaurant: restaurant,
+                onTap: () {},
+                // Gunakan Hero tag yang unik agar tidak error di test
+                index: 0,
+              ),
             ),
           ),
         ),
       );
 
-      // awalnya border
-      await tester.pump();
+      // Tunggu build
+      await tester.pumpAndSettle();
+
+      // Awalnya favorite border
       expect(find.byIcon(Icons.favorite_border), findsOneWidget);
 
-      // tap jadi favorite
+      // Tap jadi favorite
       await tester.tap(find.byType(IconButton));
       await tester.pumpAndSettle();
       expect(find.byIcon(Icons.favorite), findsOneWidget);
 
-      // tap lagi jadi unfavorite
+      // Tap lagi jadi unfavorite
       await tester.tap(find.byType(IconButton));
       await tester.pumpAndSettle();
       expect(find.byIcon(Icons.favorite_border), findsOneWidget);

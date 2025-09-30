@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:restoguh_dicoding_fundamentl/models/restaurant.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/favorite_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/widgets/images/CircleSVGImage.dart';
 import '../../../services/api_service.dart';
@@ -9,11 +8,13 @@ import '../../../models/restaurant_detail.dart';
 class DetailAppbar extends StatelessWidget {
   final RestaurantDetail r;
   final bool showAppbarTitle;
+  final String heroTag;
 
   const DetailAppbar({
     super.key,
     required this.r,
     required this.showAppbarTitle,
+    required this.heroTag,
   });
 
   @override
@@ -38,7 +39,7 @@ class DetailAppbar extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             Hero(
-              tag: 'img-${r.id}',
+              tag: heroTag,
               child: Image.network(
                 ApiService.imageUrl(r.pictureId),
                 fit: BoxFit.cover,

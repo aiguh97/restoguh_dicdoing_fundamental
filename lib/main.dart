@@ -16,6 +16,7 @@ import 'package:restoguh_dicoding_fundamentl/providers/review_list_provider.dart
 import 'package:restoguh_dicoding_fundamentl/providers/review_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/onboarding_screen.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/menu_screen.dart';
+import 'package:restoguh_dicoding_fundamentl/services/workmanager_service.dart';
 import 'package:restoguh_dicoding_fundamentl/style/theme/restoguh_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
@@ -64,7 +65,7 @@ void main() async {
       providers: [
         // ApiService harus paling atas dulu
         Provider<ApiService>(create: (_) => ApiService()),
-
+        Provider(create: (context) => WorkmanagerService()..init()),
         // LocalNotificationService butuh ApiService
         Provider<LocalNotificationService>(
           create: (context) =>

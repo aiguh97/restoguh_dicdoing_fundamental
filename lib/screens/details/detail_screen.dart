@@ -11,7 +11,8 @@ import 'package:restoguh_dicoding_fundamentl/static/restoguh_detail_result_state
 
 class DetailScreen extends StatefulWidget {
   final String id;
-  const DetailScreen({super.key, required this.id});
+  final int heroIndex;
+  const DetailScreen({super.key, required this.id, required this.heroIndex});
 
   @override
   State<DetailScreen> createState() => _DetailScreenState();
@@ -126,6 +127,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     controller: _scrollController,
                     slivers: [
                       DetailAppbar(
+                        heroTag: 'img-${r.id}-${widget.heroIndex}',
                         r: r,
                         showAppbarTitle: provider.showAppbarTitle,
                       ),

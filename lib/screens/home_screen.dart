@@ -100,12 +100,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           final restaurant = restaurants[index];
                           return RestaurantCard(
                             restaurant: restaurant,
+                            index: index,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      DetailScreen(id: restaurant.id),
+                                  builder: (_) => DetailScreen(
+                                    id: restaurant.id,
+                                    heroIndex: index,
+                                  ),
                                 ),
                               );
                             },

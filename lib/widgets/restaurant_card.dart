@@ -8,23 +8,25 @@ import '../services/api_service.dart';
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
   final VoidCallback onTap;
+  final int index;
 
   const RestaurantCard({
     super.key,
     required this.restaurant,
     required this.onTap,
+    required this.index,
   });
 
   @override
   Widget build(BuildContext context) {
-    final favoriteProvider = Provider.of<FavoriteProvider>(context);
+    // final favoriteProvider = Provider.of<FavoriteProvider>(context);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
       child: ListTile(
         onTap: onTap,
         leading: Hero(
-          tag: 'img-${restaurant.id}',
+          tag: 'img-${restaurant.id}-$index',
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Image.network(

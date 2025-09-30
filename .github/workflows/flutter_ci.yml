@@ -14,11 +14,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Flutter (Specific Version)
+      - name: Setup Flutter (Latest Stable with Dart >= 3.9.2)
         uses: subosito/flutter-action@v2
         with:
-          # ✅ Pilih versi yang kompatibel
-          flutter-version: '3.16.9'  # Versi dengan Dart SDK yang sesuai
+          # ✅ FIX: Change to a Flutter version that ships with Dart SDK 3.9.2 or newer.
+          # Flutter 3.22.x is the latest stable and uses Dart 3.4.x.
+          flutter-version: '3.22.x'
           
       - name: Debug Info
         run: |
@@ -41,10 +42,12 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.16.9'
+          # ✅ FIX: Use the same compatible version as above.
+          flutter-version: '3.22.x'
 
       - name: Install Dependencies
         run: |
+          # Use --no-prerelease to avoid issues if using a pre-release Flutter channel
           flutter pub get
           flutter pub deps
 

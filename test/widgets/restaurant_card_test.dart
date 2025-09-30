@@ -48,7 +48,11 @@ void main() {
         value: provider,
         child: MaterialApp(
           home: Scaffold(
-            body: RestaurantCard(restaurant: restaurant, onTap: () {}),
+            body: RestaurantCard(
+              restaurant: restaurant,
+              index: 0,
+              onTap: () {},
+            ),
           ),
         ),
       ),

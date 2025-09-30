@@ -11,29 +11,12 @@ class FavoriteScreen extends StatefulWidget {
 }
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
-  bool _initialized = false;
-
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () =>
-          Provider.of<FavoriteProvider>(context, listen: false).loadFavorites(),
-    );
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_initialized) {
-      _initialized = true;
-      // Panggil provider di sini
-      Future.microtask(() {
-        if (mounted) {
-          Provider.of<FavoriteProvider>(context, listen: false).loadFavorites();
-        }
-      });
-    }
+    Future.microtask(() {
+      Provider.of<FavoriteProvider>(context, listen: false).loadFavorites();
+    });
   }
 
   @override
@@ -51,6 +34,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 final restaurant = favorites[index];
                 return RestaurantCard(
                   restaurant: restaurant,
+                  index: index,
                   onTap: () {
                     // navigasi ke detail
                     Navigator.pushNamed(
