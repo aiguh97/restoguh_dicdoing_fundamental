@@ -1,6 +1,5 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:notification_app/services/local_notification_service.dart';
 import 'package:restoguh_dicoding_fundamentl/services/local_notification_service.dart';
 
 class LocalNotificationProvider extends ChangeNotifier {
@@ -12,52 +11,76 @@ class LocalNotificationProvider extends ChangeNotifier {
   bool? _permission = false;
   bool? get permission => _permission;
 
-  // todo-02-provider-01: add the state
+  /// Menyimpan daftar notifikasi yang masih pending
   List<PendingNotificationRequest> pendingNotificationRequests = [];
 
+  /// Minta izin notifikasi
   Future<void> requestPermissions() async {
     _permission = await flutterNotificationService.requestPermissions();
     notifyListeners();
   }
 
+  /// Notifikasi sederhana
   void showNotification() {
     _notificationId += 1;
     flutterNotificationService.showNotification(
       id: _notificationId,
       title: "New Notification",
       body: "This is a new notification with id $_notificationId",
-      payload: "This is a payload from notification with id $_notificationId",
+      payload: "payload_notification_$_notificationId",
     );
   }
 
+  /// Notifikasi dengan Big Picture
   void showBigPictureNotification() {
     _notificationId += 1;
     flutterNotificationService.showBigPictureNotification(
       id: _notificationId,
       title: "New Big Picture Notification",
-      body: "This is a new big picture notification with id $_notificationId",
-      payload:
-          "This is a payload from big picture notification with id $_notificationId",
+      body: "This is a big picture notification with id $_notificationId",
+      payload: "payload_big_picture_$_notificationId",
     );
   }
 
-  // todo-02-provider-02: create a schedule notification
+  /// Jadwalkan notifikasi harian jam 10 AM
   void scheduleDailyTenAMNotification() {
     _notificationId += 1;
-    flutterNotificationService.scheduleDailyTenAMNotification(
+    flutterNotificationService.scheduleDailyElevenAMNotification(
       id: _notificationId,
     );
-  }
-
-  // todo-02-provider-03: show a list of pending notification
-  Future<void> checkPendingNotificationRequests(BuildContext context) async {
-    pendingNotificationRequests = await flutterNotificationService
-        .pendingNotificationRequests();
     notifyListeners();
   }
 
-  // todo-02-provider-04: cancel a notification
+  /// Jadwalkan notifikasi 2 detik dari sekarang
+  void scheduleCurrentNotif() {
+    _notificationId += 1;
+    flutterNotificationService.scheduleTwoSecondNotification(
+      id: _notificationId,
+    );
+    notifyListeners();
+  }
+
+  /// Cek daftar notifikasi yang masih pending
+  Future<void> checkPendingNotificationRequests(BuildContext context) async {
+    pendingNotificationRequests =
+        await flutterNotificationService.pendingNotificationRequests();
+    notifyListeners();
+  }
+
+  /// Batalkan notifikasi tertentu
   Future<void> cancelNotification(int id) async {
     await flutterNotificationService.cancelNotification(id);
+    notifyListeners();
+  }
+
+  /// Test notifikasi manual (contoh: simulasi jam 1:30 AM)
+  void showTestCurrentNotif() {
+    _notificationId += 1;
+    flutterNotificationService.showNotification(
+      id: _notificationId,
+      title: "🕜 Test 1:30 AM Notification",
+      body: "Ini adalah test notifikasi untuk jam 1:30 AM",
+      payload: "test_1_30_am",
+    );
   }
 }

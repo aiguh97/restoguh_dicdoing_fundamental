@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -12,19 +13,33 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // Init plugin notifikasi
+    final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    const initSettings = InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: DarwinInitializationSettings(),
+    );
+    await flutterLocalNotificationsPlugin.initialize(initSettings);
+
+    // Init timezone
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
 
-    // Fetch restoran dari API
+    // Pakai ApiService instance, bukan static
+    final apiService = ApiService();
+
     try {
-      final restaurants = await ApiService.fetchRestaurants();
+      final restaurants = await apiService.fetchRestaurants();
       if (restaurants.isNotEmpty) {
         final random = Random().nextInt(restaurants.length);
-        final Restaurant resto = restaurants[random];
+        final resto = restaurants[random];
 
         const androidDetails = AndroidNotificationDetails(
           'daily_resto',
           'Daily Restaurant Reminder',
+          channelDescription: 'Rekomendasi restoran setiap hari',
           importance: Importance.max,
           priority: Priority.high,
         );
@@ -52,6 +67,8 @@ void callbackDispatcher() {
           android: AndroidNotificationDetails(
             'daily_resto',
             'Daily Restaurant Reminder',
+            channelDescription: 'Notifikasi gagal load data',
+            importance: Importance.defaultImportance,
           ),
         ),
       );

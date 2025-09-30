@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// import 'package:restoguh_dicoding_fundamentl/providers/local_notification_provider.dart';
+import 'package:restoguh_dicoding_fundamentl/providers/local_notification_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/theme_provider.dart';
-import 'package:restoguh_dicoding_fundamentl/providers/reminder_provider.dart';
-import 'package:restoguh_dicoding_fundamentl/services/local_notification_service.dart';
 import 'package:restoguh_dicoding_fundamentl/services/workmanager_service.dart';
 import 'package:restoguh_dicoding_fundamentl/style/typography/typography_text_styles.dart';
-
-import 'package:workmanager/workmanager.dart';
-// import 'background_task.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -20,31 +15,6 @@ class SettingScreen extends StatefulWidget {
 class _SettingScreenState extends State<SettingScreen> {
   @override
   Widget build(BuildContext context) {
-    Future<void> _requestPermission() async {
-      await context.read<LocalNotificationProvider>().requestPermissions();
-    }
-
-    // Future<void> _scheduleDailyRestaurantReminder() async {
-    //   await Workmanager().registerPeriodicTask(
-    //     "dailyRestoTask",
-    //     "showDailyRestoNotification",
-    //     frequency: const Duration(hours: 24),
-    //     initialDelay: const Duration(
-    //       seconds: 10,
-    //     ), // testing: 10 detik setelah aktif
-    //     constraints: Constraints(
-    //       networkType: NetworkType.connected, // butuh internet untuk fetch API
-    //     ),
-    //   );
-
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text('✅ Daily Restaurant Reminder diaktifkan!'),
-    //       duration: Duration(seconds: 2),
-    //     ),
-    //   );
-    // }
-
     void _runDailyTaskAt11AM() async {
       context.read<WorkmanagerService>().runDailyTaskAt11AM();
     }
@@ -52,19 +22,6 @@ class _SettingScreenState extends State<SettingScreen> {
     void _runOneOffTask() async {
       context.read<WorkmanagerService>().runOneOffTask();
     }
-
-    // Future<void> _testNotification() async {
-    //   await _requestPermission(); // Request permission dulu
-    //   context.read<LocalNotificationProvider>().scheduleCurrentNotif();
-
-    //   // Tampilkan info di layar juga
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text("✅  Notifikasi 2 detik dari sekarang"),
-    //       duration: Duration(milliseconds: 450),
-    //     ),
-    //   );
-    // }
 
     return Scaffold(
       appBar: AppBar(

@@ -33,7 +33,6 @@ class DetailAppbar extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
@@ -79,7 +78,6 @@ class DetailAppbar extends StatelessWidget {
                         ).withOpacity(0.3),
                         iconColor: Colors.white,
                       ),
-
                       Consumer<FavoriteProvider>(
                         builder: (context, favoriteProvider, _) {
                           final isFav = favoriteProvider.isFavorite(r.id);

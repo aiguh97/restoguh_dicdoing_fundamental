@@ -3,6 +3,10 @@ import '../../../services/api_service.dart';
 import '../../../models/restaurant_detail.dart';
 
 class ReviewProvider extends ChangeNotifier {
+  final ApiService apiService;
+
+  ReviewProvider({required this.apiService});
+
   bool _isSubmitting = false;
   bool get isSubmitting => _isSubmitting;
 
@@ -18,7 +22,8 @@ class ReviewProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final success = await ApiService.postReview(restaurantId, name, review);
+      final success = await apiService.postReview(
+          restaurantId, name, review); // ✅ pakai instance
       if (success) {
         await refreshRestaurantDetail(restaurantId);
       }
@@ -29,7 +34,8 @@ class ReviewProvider extends ChangeNotifier {
   }
 
   Future<void> refreshRestaurantDetail(String restaurantId) async {
-    _restaurantDetail = await ApiService.fetchRestaurantDetail(restaurantId);
+    _restaurantDetail = await apiService
+        .fetchRestaurantDetail(restaurantId); // ✅ pakai instance
     notifyListeners();
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:restoguh_dicoding_fundamentl/services/api_service.dart';
+import 'package:restoguh_dicoding_fundamentl/services/local_notification_service.dart';
 import 'package:restoguh_dicoding_fundamentl/static/my_workmanager.dart';
 import 'package:workmanager/workmanager.dart';
 
@@ -8,14 +9,34 @@ import 'package:workmanager/workmanager.dart';
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     try {
+      final notificationService = LocalNotificationService();
+      await notificationService.init();
+
+      final apiService = ApiService(); // ✅ bikin instance
+
       if (task == MyWorkmanager.oneOff.taskName ||
           task == MyWorkmanager.oneOff.uniqueName) {
         print("One-off task inputData: $inputData");
-      } else if (task == MyWorkmanager.periodic.taskName) {
-        final randomNumber = Random().nextInt(100);
-        final result = await ApiService.fetchRestaurantDetail("$randomNumber");
+
+        await notificationService.showNotification(
+          id: 1,
+          title: "One-off Task",
+          body: inputData?['data'] ?? "One-off task executed!",
+        );
+      } else if (task == MyWorkmanager.periodic.taskName ||
+          task == 'dailyTask') {
+        final randomNumber =
+            Random().nextInt(20) + 1; // ✅ lebih aman range kecil
+        final result = await apiService.fetchRestaurantDetail("$randomNumber");
         print("Periodic task result: $result");
+
+        await notificationService.showNotification(
+          id: 2,
+          title: "Daily Restaurant Reminder",
+          body: "Coba lihat resto rekomendasi: ${result.name}",
+        );
       }
+
       return Future.value(true);
     } catch (e, stack) {
       print("Error in Workmanager task '$task': $e\n$stack");
@@ -28,7 +49,7 @@ class WorkmanagerService {
   final Workmanager _workmanager;
 
   WorkmanagerService([Workmanager? workmanager])
-    : _workmanager = workmanager ?? Workmanager();
+      : _workmanager = workmanager ?? Workmanager();
 
   Future<void> init() async {
     await _workmanager.initialize(callbackDispatcher, isInDebugMode: true);

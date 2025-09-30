@@ -1,10 +1,14 @@
+// lib/providers/home_provider.dart
 import 'package:flutter/material.dart';
 import '../models/restaurant.dart';
 import '../services/api_service.dart';
 import '../static/restoguh_list_result_state.dart';
 
-// lib/providers/home_provider.dart
 class HomeProvider extends ChangeNotifier {
+  final ApiService apiService;
+  HomeProvider({ApiService? apiService})
+      : apiService = apiService ?? ApiService();
+
   RestoguhListResultState _state = RestoguhListNoneState();
   RestoguhListResultState get state => _state;
 
@@ -21,7 +25,7 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final restaurants = await ApiService.fetchRestaurants();
+      final restaurants = await apiService.fetchRestaurants();
       _state = RestoguhListLoadedState(restaurants);
     } catch (e) {
       _state = RestoguhListErrorState("Koneksi Terputus");
@@ -43,7 +47,7 @@ class HomeProvider extends ChangeNotifier {
       if (_searchCache.containsKey(_query)) {
         _state = RestoguhListLoadedState(_searchCache[_query]!, query: _query);
       } else {
-        final results = await ApiService.searchRestaurants(_query);
+        final results = await apiService.searchRestaurants(_query);
         _state = RestoguhListLoadedState(results, query: _query);
         _searchCache[_query] = results;
       }
@@ -63,7 +67,6 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  // 🔹 ini khusus untuk UI AppBar
   void startSearch() {
     _isSearching = true;
     notifyListeners();
@@ -72,6 +75,6 @@ class HomeProvider extends ChangeNotifier {
   void stopSearch() {
     _isSearching = false;
     _query = '';
-    fetchRestaurants(); // balik ke data awal
+    fetchRestaurants();
   }
 }

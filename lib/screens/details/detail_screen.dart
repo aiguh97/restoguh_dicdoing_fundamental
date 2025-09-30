@@ -7,7 +7,6 @@ import '../../models/restaurant_detail.dart';
 import 'widgets/detail_appbar.dart';
 import 'widgets/detail_header.dart';
 import 'widgets/menu_list.dart';
-import 'package:restoguh_dicoding_fundamentl/static/restoguh_detail_result_state%20.dart';
 
 class DetailScreen extends StatefulWidget {
   final String id;
@@ -25,9 +24,7 @@ class _DetailScreenState extends State<DetailScreen> {
   @override
   void initState() {
     super.initState();
-    // load data di awal
     Future.microtask(() {
-      // ignore: use_build_context_synchronously
       context.read<DetailScreenProvider>().fetchRestaurantDetail(widget.id);
     });
   }
@@ -72,11 +69,7 @@ class _DetailScreenState extends State<DetailScreen> {
           body: NotificationListener<ScrollNotification>(
             onNotification: (scroll) {
               if (scroll.metrics.axis == Axis.vertical) {
-                if (scroll.metrics.pixels > 120) {
-                  provider.updateAppbarTitle(true);
-                } else {
-                  provider.updateAppbarTitle(false);
-                }
+                provider.updateAppbarTitle(scroll.metrics.pixels > 120);
               }
               return false;
             },
@@ -87,42 +80,10 @@ class _DetailScreenState extends State<DetailScreen> {
                 if (state is RestoguhDetailLoadingState) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is RestoguhDetailErrorState) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          "assets/images/no_internet.png",
-                          width: 250,
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Koneksi Terputus',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        ElevatedButton(
-                          onPressed: () =>
-                              provider.fetchRestaurantDetail(widget.id),
-                          child: const Text('Refresh'),
-                        ),
-                        const SizedBox(height: 16),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 24),
-                          child: Text(
-                            "Periksa jaringan internet anda",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+                  return _buildErrorState(provider);
                 } else if (state is RestoguhDetailLoadedState) {
-                  final r = state.restaurant;
+                  final r = state.restaurantDetail;
+
                   return CustomScrollView(
                     controller: _scrollController,
                     slivers: [
@@ -174,6 +135,36 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
+  Widget _buildErrorState(DetailScreenProvider provider) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset("assets/images/no_internet.png", width: 250),
+          const SizedBox(height: 16),
+          const Text(
+            'Koneksi Terputus',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: () => provider.fetchRestaurantDetail(widget.id),
+            child: const Text('Refresh'),
+          ),
+          const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              "Periksa jaringan internet anda",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildReviewsSection(List<CustomerReview> reviews) {
     return KeyedSubtree(
       key: _reviewsSectionKey,
@@ -184,24 +175,24 @@ class _DetailScreenState extends State<DetailScreen> {
             children: [
               Text(
                 'Ulasan Pelanggan',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  // ignore: deprecated_member_use
                   color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   '${reviews.length} ulasan',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ),
               const Spacer(),
@@ -220,9 +211,8 @@ class _DetailScreenState extends State<DetailScreen> {
             _buildEmptyReviews()
           else
             Column(
-              children: reviews
-                  .map((review) => _buildReviewItem(review))
-                  .toList(),
+              children:
+                  reviews.map((review) => _buildReviewItem(review)).toList(),
             ),
         ],
       ),
@@ -233,13 +223,12 @@ class _DetailScreenState extends State<DetailScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        // ignore: deprecated_member_use
         color: Colors.grey.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
-          Icon(Icons.reviews_outlined, size: 48, color: Colors.grey),
+          const Icon(Icons.reviews_outlined, size: 48, color: Colors.grey),
           const SizedBox(height: 8),
           const Text(
             'Belum ada ulasan',
@@ -317,7 +306,10 @@ class _DetailScreenState extends State<DetailScreen> {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Text(review.review, style: const TextStyle(fontSize: 14)),
+                    Text(
+                      review.review,
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ],
                 ),
               ),
