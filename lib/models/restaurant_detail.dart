@@ -1,3 +1,5 @@
+import 'package:restoguh_dicoding_fundamentl/models/restaurant.dart';
+
 class Category {
   final String name;
   Category({required this.name});
@@ -79,6 +81,19 @@ class RestaurantDetail {
       customerReviews: (r['customerReviews'] as List)
           .map((e) => CustomerReview.fromJson(e))
           .toList(),
+    );
+  }
+}
+
+extension RestaurantDetailX on RestaurantDetail {
+  Restaurant toRestaurant() {
+    return Restaurant(
+      id: this.id,
+      name: this.name,
+      description: this.description,
+      pictureId: this.pictureId,
+      city: this.city,
+      rating: this.rating,
     );
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:restoguh_dicoding_fundamentl/models/restaurant.dart';
+import 'package:restoguh_dicoding_fundamentl/providers/favorite_provider.dart';
 import 'package:restoguh_dicoding_fundamentl/widgets/images/CircleSVGImage.dart';
 import '../../../services/api_service.dart';
 import '../../../models/restaurant_detail.dart';
@@ -15,6 +18,7 @@ class DetailAppbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
     return SliverAppBar(
       expandedHeight: 220,
       pinned: true,
@@ -74,22 +78,26 @@ class DetailAppbar extends StatelessWidget {
                         ).withOpacity(0.3),
                         iconColor: Colors.white,
                       ),
-                      // if (!showAppbarTitle)
-                      //   Text(
-                      //     r.name,
-                      //     style: const TextStyle(
-                      //       fontSize: 18,
-                      //       fontFamily: 'SFUIDisplay',
-                      //       fontWeight: FontWeight.bold,
-                      //       color: Colors.white,
-                      //     ),
-                      //   ),
-                      CircleSvgImage(
-                        assetPath: "assets/svg/bookmark.svg",
-                        // ignore: avoid_print
-                        onTap: () => print("Bookmark tapped!"),
-                        backgroundColor: const Color(0XFF1B1E28),
-                        iconColor: Colors.white,
+
+                      Consumer<FavoriteProvider>(
+                        builder: (context, favoriteProvider, _) {
+                          final isFav = favoriteProvider.isFavorite(r.id);
+                          return IconButton(
+                            icon: Icon(
+                              isFav ? Icons.favorite : Icons.favorite_border,
+                              color: isFav ? Colors.red : Colors.grey,
+                            ),
+                            onPressed: () async {
+                              if (isFav) {
+                                await favoriteProvider.removeFavorite(r.id);
+                              } else {
+                                await favoriteProvider.addFavorite(
+                                  r.toRestaurant(),
+                                );
+                              }
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),

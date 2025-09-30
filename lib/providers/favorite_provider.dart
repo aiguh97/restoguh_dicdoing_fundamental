@@ -1,15 +1,19 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../db/database_helper.dart';
 import '../models/restaurant.dart';
 
 class FavoriteProvider with ChangeNotifier {
-  final DatabaseHelper _dbHelper = DatabaseHelper();
+  DatabaseHelper _dbHelper = DatabaseHelper();
   List<Restaurant> _favorites = [];
+  final Set<String> _favoriteIds = {};
 
   List<Restaurant> get favorites => _favorites;
 
   Future<void> loadFavorites() async {
     _favorites = await _dbHelper.getFavorites();
+    _favoriteIds
+      ..clear()
+      ..addAll(_favorites.map((r) => r.id));
     notifyListeners();
   }
 
@@ -23,7 +27,11 @@ class FavoriteProvider with ChangeNotifier {
     await loadFavorites();
   }
 
-  Future<bool> isFavorite(String id) async {
-    return await _dbHelper.isFavorite(id);
+  bool isFavorite(String id) => _favoriteIds.contains(id);
+
+  /// 🔹 method khusus buat unit test, biar bisa mock DatabaseHelper
+  @visibleForTesting
+  void overrideDbHelper(DatabaseHelper helper) {
+    _dbHelper = helper;
   }
 }

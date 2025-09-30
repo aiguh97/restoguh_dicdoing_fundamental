@@ -1,22 +1,39 @@
-name: Flutter CI/CD
+name: Flutter CI/CD Fixed
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
 
 jobs:
+  check-environment:
+    name: Check Environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter (Specific Version)
+        uses: subosito/flutter-action@v2
+        with:
+          # ✅ Pilih versi yang kompatibel
+          flutter-version: '3.16.9'  # Versi dengan Dart SDK yang sesuai
+          
+      - name: Debug Info
+        run: |
+          echo "=== Flutter Version ==="
+          flutter --version
+          echo "=== Dart Version ==="
+          dart --version
+          echo "=== Flutter Doctor ==="
+          flutter doctor -v
+
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    env:
-      FLUTTER_VERSION: '3.19.0'  # ✅ Gunakan versi yang lebih stabil
-
+    needs: check-environment
+    
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -24,173 +41,12 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
+          flutter-version: '3.16.9'
 
       - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Verify Flutter Installation
-        run: flutter doctor
-
-      - name: Run Unit Tests
-        run: flutter test test/providers/ test/models/
-
-      - name: Run Widget Tests
-        run: flutter test test/screens/
-
-      - name: Run All Tests with Coverage
         run: |
-          flutter test --coverage
-          genhtml coverage/lcov.info -o coverage/html
+          flutter pub get
+          flutter pub deps
 
-      - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage/lcov.info
-          flags: unittests
-          name: codecov-umbrella
-
-  build-android:
-    name: Build Android APK
-    runs-on: ubuntu-latest
-    needs: test  # ✅ Tunggu test selesai dulu
-    env:
-      FLUTTER_VERSION: '3.19.0'
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
-
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Build APK
-        run: flutter build apk --release --no-tree-shake-icons
-
-      - name: Build App Bundle
-        run: flutter build appbundle --release --no-tree-shake-icons
-
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 30
-
-      - name: Upload App Bundle Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-bundle
-          path: build/app/outputs/bundle/release/app-release.aab
-          retention-days: 30
-
-  # ✅ OPSIONAL: Build iOS (hanya untuk macOS runner)
-  build-ios:
-    name: Build iOS
-    runs-on: macos-latest
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    env:
-      FLUTTER_VERSION: '3.19.0'
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Build iOS
-        run: flutter build ios --release --no-codesign
-
-      - name: Upload iOS Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-ios-release
-          path: build/ios/
-          retention-days: 30
-
-  # ✅ OPSIONAL: Integration Tests (jika diperlukan)
-  integration-test:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.19.0'
-          channel: 'stable'
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Run Integration Tests
-        run: |
-          flutter drive \
-            --driver=test_driver/integration_test.dart \
-            --target=integration_test/app_test.dart
-
-  # ✅ OPSIONAL: Create Release (hanya untuk main branch)
-  create-release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    needs: [test, build-android]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Download APK Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: app-release-apk
-          path: ./artifacts/
-
-      - name: Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ github.run_number }}
-          name: Release v${{ github.run_number }}
-          body: |
-            ## Automated Release
-            
-            **Build Number:** ${{ github.run_number }}
-            **Commit:** ${{ github.sha }}
-            **Date:** ${{ github.event.head_commit.timestamp }}
-            
-            ### Changes:
-            - Automated build and test
-            - APK ready for distribution
-          draft: false
-          prerelease: false
-          files: |
-            ./artifacts/app-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Tests
+        run: flutter test

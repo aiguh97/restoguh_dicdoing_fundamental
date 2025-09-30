@@ -18,7 +18,6 @@ class RestaurantCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final favoriteProvider = Provider.of<FavoriteProvider>(context);
-    final isFav = favoriteProvider.isFavorite(restaurant.id);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
@@ -86,24 +85,22 @@ class RestaurantCard extends StatelessWidget {
                 ),
               ],
             ),
-            IconButton(
-              icon: FutureBuilder<bool>(
-                future: favoriteProvider.isFavorite(restaurant.id),
-                builder: (context, snapshot) {
-                  final isFav = snapshot.data ?? false;
-                  return Icon(
+            Consumer<FavoriteProvider>(
+              builder: (context, favoriteProvider, _) {
+                final isFav = favoriteProvider.isFavorite(restaurant.id);
+                return IconButton(
+                  icon: Icon(
                     isFav ? Icons.favorite : Icons.favorite_border,
                     color: isFav ? Colors.red : Colors.grey,
-                  );
-                },
-              ),
-              onPressed: () async {
-                final isFav = await favoriteProvider.isFavorite(restaurant.id);
-                if (isFav) {
-                  await favoriteProvider.removeFavorite(restaurant.id);
-                } else {
-                  await favoriteProvider.addFavorite(restaurant);
-                }
+                  ),
+                  onPressed: () async {
+                    if (isFav) {
+                      await favoriteProvider.removeFavorite(restaurant.id);
+                    } else {
+                      await favoriteProvider.addFavorite(restaurant);
+                    }
+                  },
+                );
               },
             ),
           ],
