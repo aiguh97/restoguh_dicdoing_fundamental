@@ -83,8 +83,8 @@ class _HomeScreenState extends State<HomeScreen> {
           return Center(
             child: switch (provider.state) {
               RestoguhListLoadingState() => const Center(
-                child: CircularProgressIndicator(),
-              ),
+                  child: CircularProgressIndicator(),
+                ),
               RestoguhListLoadedState(data: var restaurants, query: var q) =>
                 restaurants.isEmpty
                     ? Center(
@@ -116,43 +116,42 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
               RestoguhListErrorState(error: var message) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset("assets/images/no_internet.png", width: 250),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Koneksi Terputus',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        // panggil ulang fetchRestaurants
-                        context.read<HomeProvider>().fetchRestaurants();
-                      },
-                      child: const Text('Refresh'),
-                    ),
-                    const SizedBox(height: 16),
-                    // Jika kamu masih ingin menampilkan detail error (opsional)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Text(
-                        message,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset("assets/images/no_internet.png", width: 250),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Koneksi Terputus',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          // panggil ulang fetchRestaurants
+                          context.read<HomeProvider>().fetchRestaurants();
+                        },
+                        child: const Text('Refresh'),
+                      ),
+                      const SizedBox(height: 16),
+                      // Jika kamu masih ingin menampilkan detail error (opsional)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          message,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-
               _ => const SizedBox(),
             },
           );

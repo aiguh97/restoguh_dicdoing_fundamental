@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:restoguh_dicoding_fundamentl/screens/details/detail_screen.dart';
 import '../providers/favorite_provider.dart';
 import '../widgets/restaurant_card.dart';
 
@@ -36,11 +37,14 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   restaurant: restaurant,
                   index: index,
                   onTap: () {
-                    // navigasi ke detail
-                    Navigator.pushNamed(
+                    Navigator.push(
                       context,
-                      '/detail',
-                      arguments: restaurant.id,
+                      MaterialPageRoute(
+                        builder: (_) => DetailScreen(
+                          id: restaurant.id,
+                          heroIndex: index,
+                        ),
+                      ),
                     );
                   },
                 );

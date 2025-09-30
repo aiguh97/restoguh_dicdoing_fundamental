@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restoguh_dicoding_fundamentl/providers/menu_provider.dart';
-import 'package:restoguh_dicoding_fundamentl/screens/favoirte_screen.dart';
+import 'package:restoguh_dicoding_fundamentl/screens/favorite_screen.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/home_screen.dart';
 import 'package:restoguh_dicoding_fundamentl/screens/settings/setting_screen.dart';
 
