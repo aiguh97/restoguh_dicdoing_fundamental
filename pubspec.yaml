@@ -4,7 +4,11 @@ publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.9.2
+  # OLD: sdk: ^3.9.2 
+  # FIX: Change the minimum version to 3.4.4 to be compatible with Flutter 3.22.x
+  sdk: '>=3.4.4 <4.0.0' 
+  # or simply:
+  # sdk: '^3.4.4'
 
 dependencies:
   flutter:
