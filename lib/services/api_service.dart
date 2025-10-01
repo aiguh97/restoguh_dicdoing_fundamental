@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -49,6 +50,22 @@ class ApiService {
       return RestaurantDetail.fromJson(data);
     } else {
       throw Exception("Failed to fetch restaurant detail");
+    }
+  }
+
+  Future<String> getRandomRestaurantId() async {
+    final response =
+        await http.get(Uri.parse("https://restaurant-api.dicoding.dev/list"));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List restaurants = data["restaurants"];
+
+      // ambil random
+      final random = Random().nextInt(restaurants.length);
+      return restaurants[random]["id"]; // return ID valid
+    } else {
+      throw Exception("Failed to load restaurant list");
     }
   }
 

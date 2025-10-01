@@ -23,9 +23,9 @@ void callbackDispatcher() {
         );
       } else if (task == MyWorkmanager.periodic.taskName ||
           task == 'dailyTask') {
-        // ✅ jalankan logic reminder
-        final randomNumber = Random().nextInt(20) + 1;
-        final result = await apiService.fetchRestaurantDetail("$randomNumber");
+        // ✅ ambil ID random valid dari API
+        final id = await apiService.getRandomRestaurantId();
+        final result = await apiService.fetchRestaurantDetail(id);
 
         await notificationService.showNotification(
           id: 2,
