@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:restoguh_dicoding_fundamentl/services/local_notification_service.dart';
+import 'package:restoguh_dicoding_fundamentl/services/workmanager_service.dart';
 
 class LocalNotificationProvider extends ChangeNotifier {
   final LocalNotificationService flutterNotificationService;
+  final WorkmanagerService workmanagerService;
 
-  LocalNotificationProvider(this.flutterNotificationService);
+  LocalNotificationProvider({
+    required this.flutterNotificationService,
+    required this.workmanagerService,
+  });
 
   int _notificationId = 0;
   bool? _permission = false;
@@ -13,6 +18,22 @@ class LocalNotificationProvider extends ChangeNotifier {
 
   /// Menyimpan daftar notifikasi yang masih pending
   List<PendingNotificationRequest> pendingNotificationRequests = [];
+
+  /// STATE: Daily Reminder
+  bool _isDailyReminderOn = false;
+  bool get isDailyReminderOn => _isDailyReminderOn;
+
+  void setDailyReminder(bool value) {
+    _isDailyReminderOn = value;
+    notifyListeners();
+
+    // Jalankan atau cancel task di Workmanager
+    if (value) {
+      workmanagerService.runDailyTaskAt11AM();
+    } else {
+      workmanagerService.cancelDailyTaskAt11AM();
+    }
+  }
 
   /// Minta izin notifikasi
   Future<void> requestPermissions() async {
@@ -42,16 +63,12 @@ class LocalNotificationProvider extends ChangeNotifier {
     );
   }
 
-  /// Jadwalkan notifikasi harian jam 10 AM
-  void scheduleDailyTenAMNotification() {
-    _notificationId += 1;
-    flutterNotificationService.scheduleDailyElevenAMNotification(
-      id: _notificationId,
-    );
-    notifyListeners();
+  /// Test One-off notification via Workmanager
+  Future<void> runOneOffTask() async {
+    await workmanagerService.runOneOffTask();
   }
 
-  /// Jadwalkan notifikasi 2 detik dari sekarang
+  /// Jadwalkan notifikasi 2 detik dari sekarang (LocalNotificationService)
   void scheduleCurrentNotif() {
     _notificationId += 1;
     flutterNotificationService.scheduleTwoSecondNotification(
@@ -61,7 +78,7 @@ class LocalNotificationProvider extends ChangeNotifier {
   }
 
   /// Cek daftar notifikasi yang masih pending
-  Future<void> checkPendingNotificationRequests(BuildContext context) async {
+  Future<void> checkPendingNotificationRequests() async {
     pendingNotificationRequests =
         await flutterNotificationService.pendingNotificationRequests();
     notifyListeners();

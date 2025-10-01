@@ -79,7 +79,9 @@ void main() async {
         // LocalNotificationProvider butuh LocalNotificationService
         ChangeNotifierProvider(
           create: (context) => LocalNotificationProvider(
-            context.read<LocalNotificationService>(),
+            flutterNotificationService:
+                context.read<LocalNotificationService>(),
+            workmanagerService: context.read<WorkmanagerService>(),
           )..requestPermissions(), // pastikan method ini ada
         ),
 

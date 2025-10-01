@@ -121,19 +121,21 @@ class _SettingScreenState extends State<SettingScreen> {
                             ],
                           ),
                         ),
-                        Switch(
-                          value: _isDailyReminderOn,
-                          onChanged: (value) async {
-                            setState(() {
-                              _isDailyReminderOn = value;
-                            });
+                        Consumer<LocalNotificationProvider>(
+                          builder: (context, notificationProvider, _) => Switch(
+                            value: notificationProvider.isDailyReminderOn,
+                            onChanged: (value) async {
+                              notificationProvider.setDailyReminder(value);
 
-                            if (value) {
-                              _runDailyTaskAt11AM();
-                            } else {
-                              _cancelDailyTaskAt11AM();
-                            }
-                          },
+                              if (value) {
+                                await notificationProvider.workmanagerService
+                                    .runDailyTaskAt11AM();
+                              } else {
+                                await notificationProvider.workmanagerService
+                                    .cancelDailyTaskAt11AM();
+                              }
+                            },
+                          ),
                         ),
                       ],
                     ),
